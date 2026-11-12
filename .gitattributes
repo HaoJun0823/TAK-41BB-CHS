@@ -1,0 +1,24 @@
+# 明文待译表与脚本必须锁 LF：本机 core.autocrlf=true 会把它们换成 CRLF，
+# 导致 GitHub Action（Linux）与本地重新生成的产物字节不一致。
+text/*.jsonl    text eol=lf
+text/*.json     text eol=lf
+text/*.md       text eol=lf
+tools/*.py      text eol=lf
+docs/*.md       text eol=lf
+*.md            text eol=lf
+.gitignore      text eol=lf
+
+# 清单是给 Excel 打开的 utf-8-sig CSV，换行交给 Git 自动处理即可
+inventory/*.csv text
+
+# VS 工程文件保持平台习惯
+*.sln           text eol=crlf
+*.vcxproj       text eol=crlf
+*.vcxproj.filters text eol=crlf
+
+# 二进制 / 游戏素材（不应入库，保险起见声明）
+*.dll           binary
+*.exe           binary
+*.icd           binary
+*.hpi           binary
+*.gaf           binary
