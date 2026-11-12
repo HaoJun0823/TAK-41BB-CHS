@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "source_sha256": "dfcb2673ddeb019c",
+  "groups": [
+    {
+      "file": "01_ui_tdf.jsonl",
+      "entries": 1476,
+      "desc": "引擎自带多语言词条表 translate/*.tdf（P0，最该先译）"
+    },
+    {
+      "file": "02_units.jsonl",
+      "entries": 699,
+      "desc": "单位/建筑定义里的名称与说明（P1）"
+    },
+    {
+      "file": "03_missions.jsonl",
+      "entries": 298,
+      "desc": "任务/地图名称与简报（P2）"
+    },
+    {
+      "file": "04_gui.jsonl",
+      "entries": 156,
+      "desc": "GUI 布局里的按钮与提示文本（P3）"
+    },
+    {
+      "file": "05_web.jsonl",
+      "entries": 1028,
+      "desc": "游戏内嵌网页可见文本（P4）"
+    },
+    {
+      "file": "06_icd.jsonl",
+      "entries": 986,
+      "desc": "主程序硬编码串：高置信 UI 文案（P5，仍需人工确认）"
+    },
+    {
+      "file": "07_icd_candidates.jsonl",
+      "entries": 3766,
+      "desc": "主程序全部 ASCII 串候选池（status=review，默认不送翻）"
+    }
+  ]
+}

@@ -1,0 +1,922 @@
+﻿path,bytes,reason
+atlas/erthfile/applet/Map02_a.GIF,2469,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/Map03.GIF,167389,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/aramon.gif,1948,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/dflt_top.gif,7536,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/dot_cptl2.gif,1546,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/dot_grn2.gif,1267,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/dot_yllw.gif,176,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/dot_yllw2.gif,1188,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/legend.gif,1414,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/tri_blue2.gif,1579,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/tri_gren2.gif,1791,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/ert_imag/tri_prpl2.gif,1782,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/abiad.gif,1205,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/anu.gif,1493,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/anvil.gif,1420,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/chasul.gif,1620,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/dflt_top.gif,7536,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/dinslow.gif,1705,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/efnin.gif,1572,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/found.gif,1528,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/Frey.gif,1516,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/frontier.gif,1622,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/geffion.gif,1769,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/geolas.gif,1599,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/glyn.gif,1157,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/gwillion.gif,1378,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/haffir.gif,1624,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/humber.gif,2825,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/kaluen.gif,1320,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/kandra.gif,1719,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/kingbrgh.gif,3054,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/kiron.gif,1630,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/laingen.gif,1353,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/lern.gif,1591,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/march.gif,1839,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/meiter.gif,1639,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/mhari.gif,1302,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/narmer.gif,1370,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/peream.gif,1939,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/phardon.gif,1594,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/poyser.gif,1641,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/Ralum.gif,1255,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/ralumbay.gif,1475,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/shasin.gif,1503,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/thiefwod.gif,1480,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/thunor.gif,1939,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/torcain.gif,1396,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/trackles.gif,1985,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/ullins.gif,1707,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/Waleph.gif,1333,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/whisper.gif,1880,位图，若含烧字需修图；纯配图可跳过
+atlas/erthfile/applet/features/headers/yniol.gif,2021,位图，若含烧字需修图；纯配图可跳过
+atlas/images/17_2.gif,22885,位图，若含烧字需修图；纯配图可跳过
+atlas/images/7_screens.gif,4946,位图，若含烧字需修图；纯配图可跳过
+atlas/images/araanim.gif,49148,位图，若含烧字需修图；纯配图可跳过
+atlas/images/bgstone2.gif,5447,位图，若含烧字需修图；纯配图可跳过
+atlas/images/flash.gif,1380,位图，若含烧字需修图；纯配图可跳过
+atlas/images/gameinfohd.gif,1279,位图，若含烧字需修图；纯配图可跳过
+atlas/images/taranim.gif,49553,位图，若含烧字需修图；纯配图可跳过
+atlas/images/veranim.gif,49836,位图，若含烧字需修图；纯配图可跳过
+atlas/images/zhonanim.gif,50111,位图，若含烧字需修图；纯配图可跳过
+atlas/images/zhonmid2.jpg,34523,位图，若含烧字需修图；纯配图可跳过
+atlas/images/aramon/aranav.jpg,31116,位图，若含烧字需修图；纯配图可跳过
+atlas/images/aramon/aratop.jpg,31340,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/1.gif,1383,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/10.gif,1416,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/11.gif,1214,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/12.gif,1455,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/13.gif,1516,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/14.gif,922,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/15.gif,6179,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/16.gif,5632,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/18.gif,6749,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/19.gif,3477,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/2.gif,1458,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/3.gif,2744,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/4.gif,1689,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/5.gif,3015,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/6.gif,11283,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/7.gif,3013,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/8.gif,1677,位图，若含烧字需修图；纯配图可跳过
+atlas/images/index/9.gif,2932,位图，若含烧字需修图；纯配图可跳过
+atlas/images/taros/tarhead.gif,3057,位图，若含烧字需修图；纯配图可跳过
+atlas/images/taros/tarnav.jpg,27966,位图，若含烧字需修图；纯配图可跳过
+atlas/images/taros/tartop.jpg,32448,位图，若含烧字需修图；纯配图可跳过
+atlas/images/veruna/nav2.jpg,31637,位图，若含烧字需修图；纯配图可跳过
+atlas/images/veruna/top.jpg,31025,位图，若含烧字需修图；纯配图可跳过
+atlas/images/veruna/verhead.gif,3390,位图，若含烧字需修图；纯配图可跳过
+atlas/images/zhon/zhonhead.gif,2737,位图，若含烧字需修图；纯配图可跳过
+atlas/images/zhon/zhonnav.jpg,24366,位图，若含烧字需修图；纯配图可跳过
+atlas/images/zhon/zhontop.jpg,30975,位图，若含烧字需修图；纯配图可跳过
+atlas/tarfeatures/headers/def_head.gif,2428,位图，若含烧字需修图；纯配图可跳过
+atlas/tarfeatures/headers/elam.gif,1140,位图，若含烧字需修图；纯配图可跳过
+atlas/tarfeatures/headers/quilp.gif,316,位图，若含烧字需修图；纯配图可跳过
+atlas/tarfeatures/headers/shek.gif,1421,位图，若含烧字需修图；纯配图可跳过
+atlas/verfeatures/headers/def_head.gif,5343,位图，若含烧字需修图；纯配图可跳过
+atlas/verfeatures/headers/mere3.gif,1436,位图，若含烧字需修图；纯配图可跳过
+atlas/verfeatures/headers/thai5.gif,1391,位图，若含烧字需修图；纯配图可跳过
+atlas/verfeatures/headers/van4.gif,1238,位图，若含烧字需修图；纯配图可跳过
+atlas/verfeatures/headers/wyl2.gif,1345,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/def_head.gif,3922,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/h1.gif,361,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/h2.gif,1861,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/h3.gif,1267,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/h4.gif,1448,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/h5.gif,1840,位图，若含烧字需修图；纯配图可跳过
+atlas/zhonfeatures/headers/h6.gif,1368,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a1.png,1095,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a2.png,1094,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a3.png,1089,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a4.png,1087,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a5.png,1099,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a6.png,1097,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a7.png,1093,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/a8.png,1084,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonBattles.png,2672,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonBoneyards.png,5646,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonCancel.png,3590,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonCrusades.png,5250,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonEditHouse.png,3629,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonEditProfile.png,3544,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonGathering.png,2563,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonHelp.png,4841,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonHostBattle.png,3632,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonHostGathering.png,3650,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonHouse.png,2574,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonLadder.png,2639,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonLocator.png,2598,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonMetaGame.png,4859,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonNews.png,2673,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonNewsNInfo.png,5006,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonOK.png,3657,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonPagePeople.png,3604,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonPeople.png,2616,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonProfile.png,2646,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonQuickplay.png,4979,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonRegister.png,4335,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonSearch.png,3589,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ButtonWarRoom.png,5036,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/CrusadesMap.png,44462,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/CrusadesRoom.png,47017,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/CrusadesRoomButton.png,2719,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/end_k2.png,1305,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/Help.png,35552,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/Login.png,35115,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/MovieButton.png,2762,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnIEditProfile.png,33413,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnIEditRegister.png,30744,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnILadders.png,35672,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnINews.png,36826,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnIProfile.png,35474,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnISearchLadder.png,32436,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/NnISearchNews.png,32807,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/OverviewButton.png,2786,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/PlayerPage.png,29985,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/PlayerPageSent.png,30178,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/PlayerProfile.png,32019,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/ReconButton.png,2653,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/Register.png,35176,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/SearchHelp.png,28684,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/SystemMessage.png,30178,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t1.png,1089,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t2.png,1090,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t3.png,1090,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t4.png,1094,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t5.png,1097,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t6.png,1102,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t7.png,1086,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/t8.png,1078,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/Update.png,35067,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v1.png,1089,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v2.png,1087,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v3.png,1090,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v4.png,1085,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v5.png,1097,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v6.png,1094,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v7.png,1087,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/v8.png,1079,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarBattle.png,35184,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarBattleForming.png,32385,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarBattleInProgress.png,32271,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarCreateBattle.png,34516,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarCreateGath.png,34011,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarGath.png,36159,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarGatheringInfo.png,31773,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarLocator.png,36222,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarPagePeople.png,33052,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarPeople.png,36447,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarPlayerInfo.png,31773,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarRoom.png,47403,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/WarSearchLocator.png,34018,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z1.png,1096,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z2.png,1094,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z3.png,1094,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z4.png,1087,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z5.png,1100,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z6.png,1101,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z7.png,1093,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Images/z8.png,1078,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/Aramon.png,1218,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/aramonShield.png,21030,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/Borders.png,89820,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/ContestedMap.png,1404742,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/CrusadeProf1.png,21030,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/CrusadeProf2.png,20262,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/CrusadesStandard1.png,19650,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/CrusadesStandard2.png,19375,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/FTUIMovie1.bik,1048576,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Boneyards/Metagame/FTUIMovie2.bik,1048576,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Boneyards/Metagame/FTUIMovie3.bik,1048576,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Boneyards/Metagame/FTUIMovie4.bik,1048576,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Boneyards/Metagame/FTUIMovie5.bik,624064,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Boneyards/Metagame/HonorMap.png,1593335,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/MetaMask.png,79742,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/Taros.png,1273,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/tarosShield.png,20262,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/TerrorMap.png,1547317,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/Veruna.png,1286,位图，若含烧字需修图；纯配图可跳过
+Boneyards/Metagame/Zhon.png,1298,位图，若含烧字需修图；纯配图可跳过
+GC/images/backgrounds/Back00.jpg,8729,位图，若含烧字需修图；纯配图可跳过
+GC/images/backgrounds/Left.jpg,3195,位图，若含烧字需修图；纯配图可跳过
+GC/images/backgrounds/Top-Left.jpg,32213,位图，若含烧字需修图；纯配图可跳过
+GC/images/banners/FGCLogo.gif,4104,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Dev-O.gif,18496,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Dev-U.gif,4099,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Fgc-O.gif,18978,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Fgc-U.gif,4119,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Gsn-O.gif,19743,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Gsn-U.gif,4255,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Pl-O.gif,18366,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Pl-U.gif,4113,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Tak-O.gif,18859,位图，若含烧字需修图；纯配图可跳过
+GC/images/buttons/Tak-U.gif,4144,位图，若含烧字需修图；纯配图可跳过
+Movies/Aramon.bik,1013072,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/CREDITS.BIK,7581908,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Creon.bik,1558776,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/INTRO.BIK,16465552,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/LOGO.BIK,2144748,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/PostTakCredits.bik,7078392,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/posttakmission24_mt.bik,7771536,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/TakMission01_mt.bik,7684740,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission02_mt.bik,5728960,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission03_mt.bik,8942004,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission04_ph.bik,4481592,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission05_dh.bik,5894224,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission06_ph.bik,7511956,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission07_ph.bik,4958644,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission08_dh.bik,5975364,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission09_dh.bik,5517588,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission10_dh.bik,1807272,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission11_dh.bik,4051372,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission12_mt.bik,6984740,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission13_ph.bik,5906920,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission14_ph.bik,4729564,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission15_ph.bik,5549892,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission16_mt.bik,7429376,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission17_mt.bik,6542388,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission18_ph.bik,3368668,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/TakMission19_ph.bik,9450564,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission20_ph.bik,5433700,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission21_ph.bik,4691084,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission22_ph.bik,2959672,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission23_ph.bik,5638004,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission24_mt.bik,3948604,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission25_dh.bik,8111116,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission26_dh.bik,6294540,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission27_mt.bik,5647616,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission28_dh.bik,8005948,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission29_dh.bik,5713208,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission30_dh.bik,5045736,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission31_dh.bik,5563200,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission32_mt.bik,6081080,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission33_mt.bik,4011180,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/TakMission34_mt.bik,3691104,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission35_mt.bik,6452248,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission36_mt.bik,8817128,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission37_mt.bik,5332612,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission38_mt.bik,9574320,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission39a_mt.bik,4609168,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission39_mt.bik,5275576,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission40_dh.bik,7999476,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission41_dh.bik,3089492,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission42_dh.bik,9779440,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission43_ph.bik,2846168,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission44_dh.bik,7370624,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission45_ph.bik,2849568,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission46_dh.bik,8030848,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/takmission47_ph.bik,8815364,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx01_dh.bik,7998520,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx02_ph.bik,6893904,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx03_ph.bik,8594384,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx04_ph.bik,9815564,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx05_ph.bik,9276628,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx06_dh.bik,8416676,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx07_ph.bik,10930740,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx08_ph.bik,8101396,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx09_mt.bik,6918164,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx10_mt.bik,8076004,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx11_mt.bik,5883976,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx12_mt.bik,5235496,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx13_mt.bik,9772268,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx14_mt.bik,7231144,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx15_dh.bik,6791504,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx16_mt.bik,7956608,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx17_ph.bik,7875920,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx18_ph.bik,8201448,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx19_dh.bik,9260968,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx20_dh.bik,10643416,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx21_dh.bik,7685656,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx22_mt.bik,8047824,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx23_ph.bik,6643572,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx24_mt.bik,11170100,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Takx25_dh.bik,7864668,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Taros.bik,1011592,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Veruna.bik,1008080,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/VICTORY.BIK,22029752,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Zhon.bik,977548,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/GIRL4.BIK,27104,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/GIRL5.BIK,130512,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/GIRL6.BIK,73664,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/GIRL7.BIK,105332,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/KNIGHT4.BIK,25960,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/KNIGHT5.BIK,363816,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/KNIGHT6.BIK,25960,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/KNIGHT7.BIK,188124,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/Loadscreen.bik,3718632,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/machine4.bik,27060,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/machine5.bik,342312,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/machine6.bik,333756,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/machine7.bik,538544,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/SNORT4.BIK,9344,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/SNORT5.BIK,66720,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/SNORT6.BIK,9344,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Movies/Gui/SNORT7.BIK,9344,过场视频，字幕烧录在帧内，需重制（建议不纳入）
+Music/track1.wav,5203004,语音/音效，需配音或重录（建议不纳入）
+Music/track10.wav,4156520,语音/音效，需配音或重录（建议不纳入）
+Music/track11.wav,3529788,语音/音效，需配音或重录（建议不纳入）
+Music/track12.wav,3690556,语音/音效，需配音或重录（建议不纳入）
+Music/track13.wav,3653692,语音/音效，需配音或重录（建议不纳入）
+Music/track14.wav,3895400,语音/音效，需配音或重录（建议不纳入）
+Music/track15.wav,4216892,语音/音效，需配音或重录（建议不纳入）
+Music/track16.wav,5030972,语音/音效，需配音或重录（建议不纳入）
+Music/track17.wav,3958844,语音/音效，需配音或重录（建议不纳入）
+Music/track18.wav,4180028,语音/音效，需配音或重录（建议不纳入）
+Music/track19.wav,5231676,语音/音效，需配音或重录（建议不纳入）
+Music/track2.wav,5371964,语音/音效，需配音或重录（建议不纳入）
+Music/track20.wav,3627068,语音/音效，需配音或重录（建议不纳入）
+Music/track3.wav,4019260,语音/音效，需配音或重录（建议不纳入）
+Music/track4.wav,4408380,语音/音效，需配音或重录（建议不纳入）
+Music/track5.wav,3757116,语音/音效，需配音或重录（建议不纳入）
+Music/track6.wav,4305980,语音/音效，需配音或重录（建议不纳入）
+Music/track7.wav,3859560,语音/音效，需配音或重录（建议不纳入）
+Music/track8.wav,4687976,语音/音效，需配音或重录（建议不纳入）
+Music/track9.wav,3917928,语音/音效，需配音或重录（建议不纳入）
+IPData.hpi::anims/araice.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cavbones.gaf,40140,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cavmana.gaf,27188,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cavnoise.gaf,92,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cavstalag.gaf,19988,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/colorlogos2.gaf,16284,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/crebuild.gaf,1579716,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/crebuild2.gaf,1926524,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/crehouse.gaf,729688,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/creingame.gaf,151724,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/creinvent.gaf,351248,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cremana.gaf,115216,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cremisc.gaf,113660,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/crenoise.gaf,56,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/creonig.gaf,165672,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/creoningame.gaf,151724,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/creplant.gaf,55720,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/crerock.gaf,28784,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cretree.gaf,948736,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/cretreea.gaf,106500,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/crewave.gaf,413880,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/playercampaigndialogue.gaf,333948,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/playerdialogue.gaf,305856,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/story1.gaf,3036412,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/takvcreonscreen.gaf,306448,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/targold.gaf,3856,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/teamlogos.gaf,16604,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/volinvent.gaf,351248,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/volmana.gaf,27192,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::anims/volnoise.gaf,92,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/bodfontbody.gaf,49948,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/bodfontdecor.gaf,35012,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/boneyard_heading.gaf,55504,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/bywarconsole.gaf,338136,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/b_times new roman (100b).gaf,50804,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/b_times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/decorativesm.gaf,125876,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/font48.gaf,201652,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/ig_times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/lombardic (cd).gaf,32656,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::fonts/times new roman (100b).gaf,50804,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/araice.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/crebldg1.gaf,61236,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/crebldg2.gaf,34212,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/credevice.gaf,63884,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/credevice2.gaf,45964,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/credevice3.gaf,51304,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/creice.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/crelogo.gaf,27796,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cremisc.gaf,16472,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cremonst1.gaf,18508,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cremonst2.gaf,33956,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cremonst3.gaf,9140,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cremonst4.gaf,10920,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cremonster.gaf,32268,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/creships.gaf,29392,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/cretiles.gaf,35964,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/tarhele.gaf,9668,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/tarice.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/verice.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+IPData.hpi::textures/zonice.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/bodfontbody.gaf,49948,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/bodfontdecor.gaf,35012,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/boneyard_heading.gaf,55504,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/bywarconsole.gaf,338136,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/b_times new roman (100b).gaf,50804,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/ig_times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/lombardic (cd).gaf,32656,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/times new roman (100b).gaf,50804,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/b_times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/decorativesm.gaf,125876,GAF 位图/字体；若含烧字或需扩字库则须修图
+V3Rocket.hpi::fonts/font48.gaf,201652,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/Ad_Banners.GAF,61856,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/BYBattleConsole.GAF,273768,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/BYBattleScrollbars.GAF,9436,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/BYGenericLightDialogue.GAF,109432,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/BYMessageMarquee.GAF,16844,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/BYMetaGameForming.GAF,772,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/MetaProfileEditButtons.GAF,22032,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards.hpi::anims/NonMetaRankIcons.GAF,10000,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards2.hpi::anims/BYEditAffilDialogue.GAF,54468,GAF 位图/字体；若含烧字或需扩字库则须修图
+boneyards2.hpi::anims/MiniFire.GAF,424,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/actionbuttons.gaf,13796,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/ad_banners.gaf,57268,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aid-huts.gaf,49964,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aid-trees.gaf,33580,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aid-wall.gaf,144,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidbldg.gaf,24076,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidbldg2.gaf,30064,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidbldg3.gaf,83968,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aiddevic.gaf,64040,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidhuman2.gaf,1340,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidhuman.gaf,13996,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidkeep1.gaf,5816,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidlogo.gaf,18096,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidmonst.gaf,3152,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidships2.gaf,63148,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aidships.gaf,74176,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/allies.gaf,19780,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/animbuttontest.gaf,156,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/anymsn.gaf,133836,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabldg.gaf,27660,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabldg2.gaf,37460,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabldg3.gaf,105228,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabldg4.gaf,89028,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabuilddeada.gaf,503596,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabuilddeadb.gaf,298932,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arabuild.gaf,3164200,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aracrop.gaf,474264,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aracropdead.gaf,59132,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aradead.gaf,10984,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aradevice2.gaf,82660,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aradevic.gaf,89644,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arahuman2.gaf,18600,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arahuman3.gaf,3988,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arahuman4.gaf,3324,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arahuman.gaf,23612,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arahut.gaf,630132,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arahutdead.gaf,99764,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/araingame.gaf,159256,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aralogo.gaf,113628,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramana.gaf,61896,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramisc.gaf,494744,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramisc2.gaf,25412,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramiscdead.gaf,52732,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramonig.gaf,108980,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramonst2.gaf,16520,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aramonst.gaf,67420,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aranoise.gaf,92,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/ararock.gaf,30008,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/araships2.gaf,41188,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/araships.gaf,70572,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aratow.gaf,209936,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aratower.gaf,68872,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aratree.gaf,630360,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/aratreea.gaf,92992,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arawall.gaf,278184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arawave.gaf,413880,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/ara_stone.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arbdeada.gaf,1697864,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/arbdeadb.gaf,173224,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/armint.gaf,158088,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/armopt.gaf,19476,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/armshare.gaf,812,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/barriers.gaf,25088,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/battlemenuoptions.gaf,314388,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/battlemenu.gaf,671828,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/battlemultiscreens.gaf,321452,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/battleroom.gaf,237216,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/battlescreens.gaf,630240,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/battleskirmscreen.gaf,318896,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/blank.gaf,614520,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/blips.gaf,5124,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bodgirl.gaf,129432,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bodscreen.gaf,325944,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/boneyard_heading.gaf,54980,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/book.gaf,2167500,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/brief.gaf,1092,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/btally.gaf,1756,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/btcheckbox.gaf,996,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/btcolor.gaf,1480,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/btname.gaf,3212,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/btradio.gaf,1320,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/btside.gaf,2412,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/buildbuttons.gaf,52180,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bybattlehostdialogue.gaf,171644,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bygatheringconsole.gaf,174732,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byhelpconsole.gaf,326752,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byiconslatency.gaf,628,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byiconsnonplayer.gaf,4624,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byinfodialogue.gaf,163308,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byloginconsole.gaf,178760,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bynewsconsole.gaf,356064,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byplayerpagedialogue.gaf,124500,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byprofileeditdialogue.gaf,179356,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byregisterconsole.gaf,173380,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byslider.gaf,6152,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bytempgbs.gaf,48044,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byupdatedialogue.gaf,79384,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bywarconsole.gaf,392160,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/ca14blackbold.gaf,27508,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/chapter.gaf,140472,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/chatlogos.gaf,796,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/choosemap.gaf,222792,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/colorlogos2.gaf,13288,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/colorlogos.gaf,13544,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/commboom.gaf,393904,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/commongui_french.gaf,779580,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/commongui_german.gaf,779552,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/commongui.gaf,834020,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/connectionscreen.gaf,348572,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/connection.gaf,202340,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/console.gaf,14540,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/controldialogue.gaf,96608,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/crystalballeffect.gaf,27596,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/cursors.gaf,68552,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/cursors_tex.gaf,76740,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/cursor_tex.gaf,135016,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/deathmagic.gaf,42640,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/diplomacydialogue.gaf,171576,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/dirtpuffs.gaf,43808,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/display.gaf,42280,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/dragon.gaf,6680,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/endmsn.gaf,11616,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/exit.gaf,32944,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/exit7.gaf,32944,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/exitdialogue.gaf,101728,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/exitpanels.gaf,147992,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/exp1.gaf,107848,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/explosions.gaf,174692,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/f2dialogue.gaf,170944,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/f2menu.gaf,25412,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/fire.gaf,2188,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/flameburst.gaf,61348,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/flames.gaf,141380,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/font10.gaf,26120,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/font11.gaf,3048,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/font12.gaf,27588,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/font14blackbold.gaf,27428,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/font48.gaf,164108,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/font8.gaf,20000,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/fontblack12.gaf,24260,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/frontend.gaf,216848,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/fx.gaf,145504,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/gameinfodialogue.gaf,361848,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/genericdialogue.gaf,162764,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagea.gaf,968,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagea2.gaf,716,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guageb.gaf,456,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagec.gaf,456,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guaged.gaf,456,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagelifea.gaf,2068,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagelifeb.gaf,1492,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagemanaa.gaf,692,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guagemanab.gaf,520,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guages.gaf,10248,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/guageselements.gaf,16624,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/gui.gaf,39056,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/hattfont12.gaf,26324,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/hattfont11.gaf,26324,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/holes.gaf,8188,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/hostdialogue.gaf,82380,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/humans.gaf,1776,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/igcommonbuttons.gaf,56336,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/igtitles.gaf,8620,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/ipdialogue.gaf,100144,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loaddialogue.gaf,179824,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loadgame.gaf,3464,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loading.gaf,2697416,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loadingbg.gaf,179972,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loadingbw.gaf,111636,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loadingc.gaf,104256,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/locatedialogue.gaf,57216,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/logos.gaf,163460,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/lombardic (cd).gaf,31984,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/lounge.gaf,3892,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/lounge2.gaf,42352,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/loungetest.gaf,34852,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/machines.gaf,244980,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/mainmenuconflict.gaf,9176,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/mainmenu.gaf,562428,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/mainscreen.gaf,301340,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/main_console.gaf,1265612,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/mapdialogue.gaf,396296,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/mattstree.gaf,18924,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/meteors.gaf,13724,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/miscart.gaf,80140,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/multiknight.gaf,104960,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/multiplayerwin.gaf,319184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/multiplayerlose.gaf,286720,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/multiplayerexitmenu.gaf,98948,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/music.gaf,4184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/musicrt.gaf,4184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/musketeer.gaf,472,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/newgame.gaf,123880,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/nimbus.gaf,133544,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/nobuild.gaf,448,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/nonmetarankicons.gaf,9160,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/npcmonst.gaf,10664,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/nyrmonst.gaf,25460,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/oldmain.gaf,50512,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/options.gaf,295964,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/optionsdialogue.gaf,196100,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/playcomputertest.gaf,89860,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/playcomputerold.gaf,89296,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/playcomputer.gaf,89296,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/playerdialogue.gaf,333948,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/popupbasic.gaf,576052,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/prefs.gaf,23168,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/previousbutton.gaf,7816,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/projectiles.gaf,41548,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/radiated.gaf,1804,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/report.gaf,89984,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/resurrect.gaf,16164,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/rings.gaf,23192,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/rockrec.gaf,19000,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/savedialogue.gaf,168732,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/scrollbars.gaf,102704,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/selectchapter.gaf,276508,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/selectconnection.gaf,157372,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/selectgame.gaf,265276,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/selgame.gaf,3684,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/selprov.gaf,4484,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/selside.gaf,39776,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/shadows.gaf,25392,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/share.gaf,11024,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/signin.gaf,658084,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/single.gaf,8336,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/singlemachine.gaf,63992,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/singleplayerwin.gaf,319184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/singleplayerlose.gaf,286720,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/singleplaywin.gaf,319184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/skirmish.gaf,31716,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/slider.gaf,37776,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/smallblank.gaf,1640,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/smoke.gaf,9204,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/sparklies.gaf,3008,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/specialweaponsbuttons.gaf,18656,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/spelldetonate.gaf,62032,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/splashes.gaf,38868,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/stagebuttons.gaf,37584,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/story1.gaf,1988372,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/takdefeatscreen.gaf,307588,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/takf4.gaf,372,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/takvaramonscreen.gaf,317776,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/takvtarosscreen.gaf,310256,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/takvverunascreen.gaf,309200,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/takvzhonscreen.gaf,308848,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/talk.gaf,14848,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/talk2.gaf,14848,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/talmonst2.gaf,26076,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/talmonst3.gaf,10708,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/talmonst.gaf,24012,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarbldg.gaf,44372,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarbldg2.gaf,91124,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarbldg3.gaf,8628,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarbuild.gaf,2616128,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tardev.gaf,568716,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tardevdead.gaf,156364,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tardevic.gaf,118596,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarhut.gaf,448416,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/taringame.gaf,127624,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarlogo.gaf,30676,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarmana.gaf,62764,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarmonst2.gaf,29332,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarmonst3.gaf,104132,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarmonst4.gaf,15808,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarmonst5.gaf,30304,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarmonst.gaf,24012,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarnoise.gaf,92,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarosig.gaf,110112,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarosingame.gaf,52472,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarpeople2.gaf,7548,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarpeople.gaf,17396,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarplant.gaf,109968,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarprwall.gaf,116640,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarrock.gaf,13832,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarships.gaf,14484,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarspire.gaf,178632,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tartree.gaf,206968,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarwall.gaf,291184,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tarwave.gaf,413880,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/teamicon.gaf,7980,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/teamlogos.gaf,13288,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/terrain.gaf,95400,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/test.gaf,49304,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/times new roman (100).gaf,50784,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/times new roman (100b).gaf,50796,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/titles.gaf,30480,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/titlescreen.gaf,302908,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/tornado.gaf,156712,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/trails.gaf,704,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/transportfx.gaf,3224,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/transport.gaf,12872,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/ver-grass.gaf,9180,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verbldg.gaf,41128,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verbldg2.gaf,103012,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verbldg3.gaf,96824,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verbuilddeada.gaf,1273532,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verbuilddeadb.gaf,228068,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verbuild.gaf,1462504,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verdevic2.gaf,73920,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verdevic.gaf,85960,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verfence.gaf,62112,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vergrass.gaf,127500,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verhut.gaf,1006820,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verhutdead.gaf,104784,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/veringame.gaf,161308,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verjointa.gaf,395132,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verjoinb.gaf,81220,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verjoint.gaf,429520,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verlogo.gaf,27388,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vermana.gaf,74484,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vermisc.gaf,164532,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vermog.gaf,12248,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vermonst.gaf,43952,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vernoise.gaf,92,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verock.gaf,15820,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verpeople2.gaf,16128,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verpeople3.gaf,25060,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verpeople.gaf,15412,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verships2.gaf,54388,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verships3.gaf,65228,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verships4.gaf,57484,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verships5.gaf,75636,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verships6.gaf,12076,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verships.gaf,43780,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vertow.gaf,223508,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vertree.gaf,539992,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/vertreed.gaf,72892,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verunaig.gaf,109208,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verwall.gaf,317264,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verwallab.gaf,235264,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verwave.gaf,413880,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/verwaves.gaf,958080,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/viewmap.gaf,166288,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/widgets.gaf,182764,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zhograss.gaf,4908,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zhonig.gaf,109816,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonbldg.gaf,60592,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zongrass.gaf,5660,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonhut.gaf,895504,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonhutdead.gaf,281040,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zoningame.gaf,162764,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmana.gaf,64744,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmisc.gaf,97612,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst3.gaf,103764,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst2.gaf,36472,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst4.gaf,24692,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst5.gaf,43844,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst6.gaf,31200,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst7.gaf,29260,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst8.gaf,24652,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst9.gaf,27148,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst10.gaf,18580,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmonst.gaf,31096,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonmound.gaf,30096,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonnoise.gaf,92,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonoldw.gaf,325544,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonplantdead.gaf,123560,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonplant.gaf,826580,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonrock.gaf,17832,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonruin.gaf,1316900,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonruindead.gaf,868760,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zontree.gaf,635304,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zontree2.gaf,360180,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonwall.gaf,295288,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/zonwave.gaf,360028,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byhelpbutton.gaf,142840,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/byiconsnonp_dl.gaf,2228,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bynewsninfobutton.gaf,141776,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/bywarroombutton.gaf,142196,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/connectionbutton.gaf,21756,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::anims/fakewarroombg.gaf,281964,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/bodfontbody.gaf,49948,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/bodfontdecor.gaf,35012,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/boneyard_heading.gaf,55504,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/bywarconsole.gaf,338136,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/b_times new roman (100b).gaf,50804,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/b_times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/decorativesm.gaf,125876,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/font48.gaf,201652,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/ig_times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/lombardic (cd).gaf,32656,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/times new roman (100).gaf,50800,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::fonts/times new roman (100b).gaf,50804,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arabldg.gaf,20792,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arabldg2.gaf,20152,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arabldg3.gaf,49872,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arabldg4.gaf,136352,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aradead.gaf,17224,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aradevice2.gaf,132024,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aradevic.gaf,93244,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arahuman2.gaf,18472,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arahuman3.gaf,16908,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arahuman4.gaf,19532,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/arahuman.gaf,22616,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aralogo.gaf,223740,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aramonst2.gaf,15260,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aramonst3.gaf,25564,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aramonst4.gaf,16868,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/aramonst.gaf,66392,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/araships2.gaf,61820,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/araships.gaf,56292,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/ara_stone.gaf,344,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/liflogo.gaf,104,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/logos.gaf,163460,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/monlogo.gaf,104,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/npclogo.gaf,104,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarbldg.gaf,30308,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarbldg2.gaf,85268,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarbldg3.gaf,83796,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tardevic.gaf,245524,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarlogo.gaf,73876,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst2.gaf,23608,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst3.gaf,70104,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst4.gaf,15424,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst5.gaf,17584,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst6.gaf,78156,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst7.gaf,20316,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarmonst.gaf,11212,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarpeople2.gaf,19808,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarpeople.gaf,10736,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/tarships.gaf,15224,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verbldg.gaf,37172,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verbldg2.gaf,92752,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verbldg3.gaf,123712,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verdevic2.gaf,178268,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verdevic.gaf,48724,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verlogo.gaf,121224,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/vermonst.gaf,55804,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verpeople2.gaf,16884,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verpeople3.gaf,28748,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verpeople.gaf,15104,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verships2.gaf,32816,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verships3.gaf,55252,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verships4.gaf,51352,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verships5.gaf,44420,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verships6.gaf,11616,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/verships.gaf,30400,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonbldg.gaf,195456,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonlogo.gaf,137072,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst11.gaf,28392,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst12.gaf,6072,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst2.gaf,35188,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst3.gaf,103880,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst4.gaf,34244,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst5.gaf,26444,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst6.gaf,14880,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst7.gaf,25148,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst8.gaf,24652,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst9.gaf,27148,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst10.gaf,27768,GAF 位图/字体；若含烧字或需扩字库则须修图
+data.hpi::textures/zonmonst.gaf,32396,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/activity_fires.GAF,34568,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYCrestDialogue.GAF,153212,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYCrestScrollbar.GAF,5296,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYC_Icons.GAF,58032,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYC_Primary.GAF,6036,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYC_Secondary.GAF,24368,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYC_Shadows.GAF,4020,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYFakeMetaMapBG.GAF,105584,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYFilterHouseDialogue.GAF,177060,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYHelpCrusadesButton.GAF,8668,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYHouseConsole.GAF,329212,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYHouseHonorConsole.GAF,461124,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYHouseNMButton.GAF,13540,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYHouseTerrorConsole.GAF,464680,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYMapSample.GAF,2948,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYMetaBattleHostDialogue.GAF,111476,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYMetaConsole.GAF,296440,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Anims/BYMetaGameForming.GAF,772,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/BYMetaWarConsole.GAF,472364,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/BYNewsnInfoCrusadesButton.GAF,8684,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/BYVictoryMomentDialogue.GAF,216072,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/BYVictoryMomentScrollbar.GAF,8668,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/CURSORS.GAF,68552,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/HCreateDialogue.GAF,307340,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/KnightErrant.GAF,1664,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/NewHouseButtons.GAF,43304,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::bymetaplayer/NewsHouseButton.GAF,8708,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Profile/ScrollBars.GAF,102736,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Profile/StrategicPoint.GAF,3344,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Profile/SysopRanks.GAF,904,GAF 位图/字体；若含烧字或需扩字库则须修图
+meta.hpi::Fonts/metamap font.GAF,29796,GAF 位图/字体；若含烧字或需扩字库则须修图

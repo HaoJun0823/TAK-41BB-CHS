@@ -1,0 +1,30 @@
+# Visual Studio / 本地 IDE
+.vs/
+*.user
+*.suo
+*.VC.db
+*.opensdf
+*.sdf
+Debug/
+Release/
+ipch/
+
+# 构建产物与临时数据（明文表 text/ 与清单 inventory/ 要入库，不忽略）
+build_out/
+dist/
+stage/
+__pycache__/
+*.pyc
+_probe/
+.workbuddy/
+venv/
+venv*/
+
+# 游戏原始素材不入库（版权 + 体积）
+*.hpi
+*.icd
+*.bik
+*.gaf
+*.wav
+*.kmp
+*.256

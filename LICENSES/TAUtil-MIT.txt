@@ -1,0 +1,32 @@
+TAUtil
+https://github.com/ArmouredFish/TAUtil (bundled at G:/Projects/TAK_41BB_CHS/TAUtil)
+Copyright (c) 2014 ArmouredFish
+
+The MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+本项目使用范围说明（2026-11-13）：
+- 参考其 C# 源码中的 HPI 结构定义（TAUtil/Hpi/HpiChunk.cs、HpiArchive.cs）
+  以复刻出纯 Python 的 HPI v2 读取器 tools/hpi_v2.py。
+- TAUtil 自带的 HpiArchive 仅支持 HPI v1；本项目额外实现了 TAK 41BB 使用的 v2。
+- 随包附带的 HPIUtil.dll 为 x86 C++/CLI 混合程序集，本项目的 64 位 Python
+  环境不直接加载它，仅作为格式参考。
+- 如后续把 TAUtil 源码或成品 DLL 随补丁分发，须保留上述版权声明与许可全文。
