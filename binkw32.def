@@ -1,0 +1,27 @@
+; binkw32.def —— binkw32.dll 代理的导出表
+;
+; KINGDOMS.icd 按名字导入 binkw32.dll 的这 10 个函数（docs/02 §6.1）。
+; 我们把本 DLL 命名为 binkw32.dll 顶在原位置，原版改名为 binkw32_orig.dll，
+; 然后用链接器的**导出转发**把调用原样指过去：
+;
+;     _BinkOpen@8=binkw32_orig._BinkOpen@8
+;
+; 这是 PE 导出表里的 forwarder 记录，由 Windows loader 在加载时解析，
+; 不经过我们任何代码 —— 没有栈/调用约定的适配问题，也没有性能损失。
+; 比手写裸函数跳转安全得多（后者要自己保证 stdcall 栈平衡）。
+;
+; 卸载：删掉本 DLL，把 binkw32_orig.dll 改回 binkw32.dll 即可，游戏文件零改动。
+
+LIBRARY binkw32
+
+EXPORTS
+    _BinkOpenMiles@4=binkw32_orig._BinkOpenMiles@4
+    _BinkClose@4=binkw32_orig._BinkClose@4
+    _BinkPause@8=binkw32_orig._BinkPause@8
+    _BinkNextFrame@4=binkw32_orig._BinkNextFrame@4
+    _BinkCopyToBuffer@28=binkw32_orig._BinkCopyToBuffer@28
+    _BinkDoFrame@4=binkw32_orig._BinkDoFrame@4
+    _BinkWait@4=binkw32_orig._BinkWait@4
+    _BinkOpen@8=binkw32_orig._BinkOpen@8
+    _BinkGoto@12=binkw32_orig._BinkGoto@12
+    _BinkSetSoundSystem@8=binkw32_orig._BinkSetSoundSystem@8

@@ -198,7 +198,41 @@ def write_runtime_dict(by_group, out_dir):
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)
         f.write("\n")
+    write_chs_dict(fwd, out_dir)
     return len(fwd), len(rev), len(conflicts)
+
+
+def write_chs_dict(fwd, out_dir):
+    """DLL 直接消费的字典：GBK 字节流，`键\\t译文\\n`，一行一条。
+
+    为什么不用 JSON：DLL 是 v141_xp 的 32 位 C++，引 JSON 库要连带处理
+    异常/STL/体积；而这个文件只需要「逐行切开、按 TAB 分两段」，200KB
+    整个读进内存零拷贝就能建表。
+
+    键用 encode_game 编：英文键走 cp1252 单字节，与引擎传进来的字节完全
+    一致（引擎资源也是单字节文本）。译文含中文，自然走 GBK 双字节。
+    """
+    path = os.path.join(out_dir, "chs.dict")
+    n = 0
+    skipped = 0
+    with open(path, "wb") as f:
+        f.write(b"# TAK CHS dict v1\n")
+        for k, zh in sorted(fwd.items()):
+            if not k or not zh:
+                continue
+            kb = encode_game(k)
+            vb = encode_game(zh)
+            # 结构字符不能出现在字段里，否则行切分会错位
+            if b"\t" in kb or b"\n" in kb or b"\r" in kb:
+                skipped += 1
+                continue
+            if b"\n" in vb or b"\r" in vb:
+                vb = vb.replace(b"\r", b" ").replace(b"\n", b" ")
+            f.write(kb + b"\t" + vb + b"\n")
+            n += 1
+    if skipped:
+        print("       chs.dict 跳过 %d 条（键含 TAB/换行）" % skipped)
+    return n
 
 
 

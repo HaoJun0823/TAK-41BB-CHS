@@ -139,6 +139,7 @@ jobs:
             build_out/patches.json
             build_out/translate/**
             build_out/dict.json
+            build_out/chs.dict
             build_out/icd_patch.json
             build_out/summary.json
           if-no-files-found: error
@@ -172,7 +173,7 @@ jobs:
         run: |
           set -euo pipefail
           miss=0
-          for f in patches.json dict.json icd_patch.json summary.json; do
+          for f in patches.json dict.json chs.dict icd_patch.json summary.json; do
             if [ ! -s "build_out/$f" ]; then
               echo "::error::缺少 $f"
               miss=1

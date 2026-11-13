@@ -232,6 +232,49 @@ def check_icd(out, errors, warns):
     return len(entries)
 
 
+def check_chs_dict(out, errors, warns, forward_count):
+    """DLL 直接消费的 GBK 字典：格式错一行，运行时就是静默少一条译文。"""
+    path = os.path.join(out, "chs.dict")
+    if not os.path.exists(path):
+        errors.append("缺少 chs.dict（DLL 运行时字典）")
+        return 0
+    raw = open(path, "rb").read()
+    if not raw.startswith(b"# TAK CHS dict v1"):
+        errors.append("chs.dict 缺少版本头")
+    lines = raw.split(b"\n")
+    n = 0
+    bad = 0
+    for ln in lines[1:]:
+        if not ln:
+            continue
+        if b"\t" not in ln:
+            bad += 1
+            if bad <= 3:
+                errors.append("chs.dict 行缺 TAB 分隔：%r" % ln[:40])
+            continue
+        key, _, val = ln.partition(b"\t")
+        if not key or not val:
+            errors.append("chs.dict 有空键或空值：%r" % ln[:40])
+            continue
+        try:
+            val.decode("gbk")
+        except UnicodeDecodeError as e:
+            bad += 1
+            if bad <= 3:
+                errors.append("chs.dict 译文不是合法 GBK（%s）：%r" % (e, val[:30]))
+            continue
+        n += 1
+    if forward_count and n != forward_count:
+        # 允许少量差异（键含 TAB 会被 build 跳过），但差太多说明生成逻辑坏了
+        if abs(n - forward_count) > max(5, forward_count // 100):
+            errors.append("chs.dict 条数 %d 与 dict.json 正向 %d 差距过大"
+                          % (n, forward_count))
+        else:
+            warns.append("chs.dict %d 条 vs dict.json %d 条（少量差异属正常）"
+                         % (n, forward_count))
+    return n
+
+
 def check_update(out, errors, warns):
     """本地模式产物：改写后的原文件里，含中文的行必须字节完好。
 
@@ -284,6 +327,7 @@ def main():
     check_summary(a.out, errors, warns)
     n_patch = check_patches(a.out, errors, warns)
     n_fwd, n_rev = check_dict(a.out, errors, warns)
+    n_chs = check_chs_dict(a.out, errors, warns, n_fwd)
     n_tdf = check_tdf(a.out, errors, warns)
     n_icd = check_icd(a.out, errors, warns)
     n_zh_lines = check_update(a.out, errors, warns)
@@ -291,6 +335,7 @@ def main():
     print("patches 条目 %d（%d 个来源）" % (n_patch, len(
         (read_json(os.path.join(a.out, "patches.json"), []) or {}).get("sources") or {})))
     print("dict    正向 %d / 反向 %d" % (n_fwd, n_rev))
+    print("chs.dict %d 条（DLL 运行时）" % n_chs)
     print("tdf     %d 份" % n_tdf)
     print("icd     %d 条" % n_icd)
     if n_zh_lines:

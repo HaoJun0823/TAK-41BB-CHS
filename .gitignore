@@ -11,6 +11,7 @@ ipch/
 
 # 构建产物与临时数据（明文表 text/ 与清单 inventory/ 要入库，不忽略）
 build_out/
+build_dll/
 dist/
 stage/
 __pycache__/
@@ -19,6 +20,14 @@ _probe/
 .workbuddy/
 venv/
 venv*/
+
+# 编译中间产物（cl 直调时容易落在根目录）
+*.obj
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.idb
 
 # 游戏原始素材不入库（版权 + 体积）
 *.hpi
