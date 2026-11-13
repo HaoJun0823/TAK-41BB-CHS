@@ -17,7 +17,9 @@
 | 翻译 | **完成**，4297 译 / 346 跳过 / 0 待确认（07 组 3766 条候选池待 IDA 确认） |
 | DLL 方案（IDA 定位语言槽 / 字库 / hook 点） | **完成**，见 `docs/02-IDA与DLL方案.md` |
 | 资产打包（明文 → 补丁，CI 三段式） | **完成**，见 `.github/workflows/build-assets.yml` |
-| DLL 实现、workflow 编译、联机实测 | 待做 |
+| DLL 实现（文本 hook + binkw32 代理） | **完成**，见 `docs/03-DLL构建与验证.md` |
+| 中文字库层（运行时纹理帧） | **完成并实机验证**，见 [`docs/04-中文字库层.md`](docs/04-中文字库层.md) |
+| 联机实测 | 待做 |
 
 **IDA 核心结论**：引擎自带完整本地化链路 —— `WinMain` 读 `Language` →
 `translate/*.tdf` 按语言名查表 → **中央翻译函数 `sub_544020`（221 处调用）** →
@@ -34,6 +36,8 @@ hook 字形绘制补 GBK 中文 + `binkw32.dll` 代理注入，**磁盘游戏文
 | [`docs/00-调研结论.md`](docs/00-调研结论.md) | 前期调查：版本谱系、六类载体、字库、注入方案 |
 | [`docs/01-待译表与打包约定.md`](docs/01-待译表与打包约定.md) | HPI v2 索引块格式、数据规模、workflow 三段式接口、未解决项 |
 | [`docs/02-IDA与DLL方案.md`](docs/02-IDA与DLL方案.md) | IDA 静态分析：文本管线、语言槽、字库上限、DLL 分层架构、hook 签名、联机保护、验证清单 |
+| [`docs/03-DLL构建与验证.md`](docs/03-DLL构建与验证.md) | DLL 构建链、部署方式、实机验证流程 |
+| [`docs/04-中文字库层.md`](docs/04-中文字库层.md) | **中文字库层**：字体槽布局、造帧 API、GBK 双字节绘制、换行/居中的字距表补丁、踩过的坑 |
 | `tools/hpi_v2.py` | HPI v2 纯 Python 读取器：`list` / `extract` / `survey` / `inventory` / `verify` |
 | `tools/extract_strings.py` | 从干净 41BB 抽取全部待译英文，生成 `text/*.jsonl` |
 | `tools/verify_strings.py` | 独立校验：格式、唯一性、占位符、编码指纹、与基线一致 |

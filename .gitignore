@@ -16,7 +16,9 @@ dist/
 stage/
 __pycache__/
 *.pyc
-_probe/
+# 实机测试脚本要入库，截图不入库
+_probe/*
+!_probe/*.py
 .workbuddy/
 venv/
 venv*/

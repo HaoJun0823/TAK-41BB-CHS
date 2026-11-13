@@ -77,6 +77,7 @@ echo [1/2] 编译
 cl %CFLAGS% /DWIN32 /DNDEBUG /D_WINDOWS /D_USRDLL ^
    /Fobuild_dll\obj\ ^
    dllmain.cpp src\log.cpp src\dict.cpp src\hook.cpp src\translate.cpp ^
+   src\gdi_probe.cpp src\cjk_font.cpp ^
    /link /DEF:binkw32.def /OUT:build_dll\binkw32.dll /SUBSYSTEM:WINDOWS %LDFLAGS%
 if errorlevel 1 (
     echo.

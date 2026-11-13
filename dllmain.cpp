@@ -7,6 +7,8 @@
 // 磁盘上的游戏文件一个字节都不改，卸载只需删掉代理与我们的 DLL。
 #include "pch.h"
 
+#include "src/cjk_font.h"
+#include "src/gdi_probe.h"
 #include "src/log.h"
 #include "src/translate.h"
 
@@ -42,6 +44,20 @@ DWORD WINAPI InitThread(LPVOID param) {
     if (!chs::TranslateInit(self, dict_path)) {
         CHS_LOGE("初始化失败，游戏按原样运行");
     }
+
+    // GDI 文本探针：先确认主 UI 到底走 GAF 位图字库还是系统 GDI。
+    // 强制换字体用开关文件控制，免得每次都要重编译：
+    //   在游戏根目录放一个 chs.gdifont（内容随意）就启用「宋体 + GB2312」。
+    wchar_t flag_path[MAX_PATH] = {0};
+    wcscpy_s(flag_path, dir);
+    wcscat_s(flag_path, L"chs.gdifont");
+    const bool force_cn =
+        GetFileAttributesW(flag_path) != INVALID_FILE_ATTRIBUTES;
+    chs::GdiProbeInit(force_cn);
+
+    // 中文字库层：把汉字做成运行时纹理帧，交给引擎自己的贴图管线绘制。
+    chs::CjkFontInit();
+
     return 0;
 }
 
@@ -67,6 +83,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved) {
         } else {
             CHS_LOG("==== 进程退出 ====");
         }
+        chs::GdiProbeReport();
+        chs::CjkFontShutdown();
         chs::LogShutdown();
         break;
 
