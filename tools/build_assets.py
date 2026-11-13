@@ -111,6 +111,11 @@ def collect(by_group):
                 stats["untranslated"] += 1
                 continue
             stats["translated"] += 1
+            # 00 组是人工补的运行时词条（GUI 内置标签），没有资源目标，
+            # 不参与资源补丁，但会进 chs.dict。不能算成 dev_note。
+            if group == "00_manual":
+                stats["manual"] += 1
+                continue
             if all(is_dev_note(t["src"]) for t in r["targets"]):
                 stats["dev_note"] += 1
                 continue

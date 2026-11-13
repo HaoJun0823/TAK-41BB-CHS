@@ -3,11 +3,15 @@
 本文对应 `dllmain.cpp` + `src/` 的实现，讲怎么编、怎么装、怎么判断它到底有没有工作。
 方案依据见 [`02-IDA与DLL方案.md`](02-IDA与DLL方案.md)。
 
-> **先说清楚当前进度**：翻译层（两个 hook）与注入层已完成并可编译；
-> **字库层还没做**。所以现在装上去，日志会显示 hook 正常、命中数在涨，
-> 但画面上中文大概率是空白或方块 —— 那是 GAF 位图字库没有中文字形，
-> 不是 DLL 没生效。验证顺序必须按本文第 4、5 节来，别拿"看不看得见中文"
-> 当作 DLL 是否工作的判据。
+> **进度**：注入层、翻译层（两个 hook）、字库层、光盘校验都已完成并实机验证。
+>
+> **注入宿主已从 `binkw32.dll` 换成 `version.dll`**（游戏自带文件不再改名），
+> 选型理由、17 个导出的跳板、进程守卫与验证手段见
+> [`06-代理DLL注入.md`](06-代理DLL注入.md)。本文 §1/§2/§3 里凡是写
+> `binkw32` 的地方都属于**旧方案**，仍可用（`deploy.py --proxy binkw32`），
+> 但不是默认。
+>
+> 另外：验证时**别拿"看不看得见中文"当作 DLL 是否工作的判据**，先看日志首三行。
 
 ---
 
@@ -15,15 +19,16 @@
 
 | 层 | 实现 | 状态 |
 |---|---|---|
-| 注入 | 本 DLL 命名 `binkw32.dll` 顶替原版，10 个 `_Bink*` 用链接器转发到 `binkw32_orig.dll` | 完成 |
+| 注入 | 本 DLL 命名 `version.dll` 放进游戏目录，17 个导出用裸跳板转发到系统原件（旧方案：`binkw32.dll`） | 完成，见 `docs/06` |
 | 翻译（正向） | inline hook `0x544020`，引擎未命中时查 `chs.dict` | 完成 |
 | 翻译（反向） | inline hook `0x544110`，把中文译回英文键 | 完成 |
 | 字典 | 启动时读同目录 `chs.dict`（GBK，`键\t译文\n`），建三张哈希表 | 完成 |
 | 语言槽 | 由 `update/translate/*.tdf` 的 `Chinese` 槽承担，DLL 不写注册表 | 见 §6 |
 | 字库 | GBK 字形渲染 + 宽度修正 | **未实现** |
 
-**磁盘文件零改动**：不碰 `KINGDOMS.icd`，不碰任何 `.hpi`。卸载＝删掉
-`binkw32.dll` 与 `chs.dict`，把 `binkw32_orig.dll` 改回 `binkw32.dll`。
+**磁盘文件零改动**：不碰 `KINGDOMS.icd`，不碰任何 `.hpi`，也不改游戏自带
+DLL 的名字。卸载＝删掉我们放进去的 `version.dll` 与 `chs.dict`
+（`deploy.py --uninstall` 按清单精确删除）。
 
 ---
 
@@ -32,7 +37,7 @@
 ### 2.1 Visual Studio（推荐）
 
 打开 `TAK_41BB_CHS.sln`，选 **Release | Win32**，生成。
-输出 `Release\binkw32.dll`。
+输出 `Release\version.dll`（旧方案为 `binkw32.dll`）。
 
 工程已配好这些，改回去会出问题：
 
@@ -42,7 +47,7 @@
 | 字符集 | MultiByte | 全程按单字节/GBK 处理文本 |
 | `/utf-8` | 开 | 源码中文注释是 UTF-8，MSVC 默认按 936 解释会乱码 |
 | 运行库 | `/MT` 静态 | 玩家机器不一定有对应 VC 运行库 |
-| 输出名 | `binkw32` | 顶替原版做代理 |
+| 输出名 | `version` | 与系统 DLL 同名，靠应用目录优先抢在系统前面 |
 | 工具集 | `v141_xp` | 游戏是 XP 时代程序，新版 CRT 会引入不存在的 API |
 
 ### 2.2 命令行
@@ -53,7 +58,7 @@ build.bat debug    :: 带符号、无优化
 ```
 
 脚本会用 `vswhere` 定位 VS，`-vcvars_ver=14.16` 锁定 v141，
-并在最后断言导出表正好 10 个 `_Bink*` 转发。
+并在最后断言导出表正好 17 个函数名与系统 `version.dll` 一一对应。
 
 > 若提示加载 v141 失败：VS Installer → 单个组件 → 勾选
 > 「MSVC v141 - VS 2017 C++ x64/x86 生成工具」。
@@ -61,17 +66,17 @@ build.bat debug    :: 带符号、无优化
 ### 2.3 产物体检
 
 ```bat
-dumpbin /dependents build_dll\binkw32.dll
+dumpbin /dependents build_dll\version.dll
 ```
 
 应当**只**列出 `KERNEL32.dll`。出现 `VCRUNTIME140.dll` / `MSVCP140.dll`
 说明静态 CRT 没生效，玩家机器上会直接加载失败（表现为双击游戏没反应）。
 
 ```bat
-dumpbin /exports build_dll\binkw32.dll
+dumpbin /exports build_dll\version.dll
 ```
 
-应当是 10 条 `forwarded to binkw32_orig.*`。
+应当是 17 个导出，每个指向 `chs_px_*` 跳板（不是转发记录，原因见 `docs/06` §3）。
 
 ---
 
@@ -80,18 +85,19 @@ dumpbin /exports build_dll\binkw32.dll
 ```
 <游戏目录>\
     KINGDOMS.icd            ← 不动
-    binkw32.dll             ← 本工程产物（代理）
-    binkw32_orig.dll        ← 原版 binkw32.dll 改名而来
+    binkw32.dll             ← 游戏自带原版，一个字节都不动
+    version.dll             ← 本工程产物（代理，删掉即还原）
     chs.dict                ← CI 产物 build_out\chs.dict
-    update\                 ← 可选：TDF 覆盖层（见 §6）
+    update\                 ← TDF 覆盖层（见 §6）
 ```
 
 步骤：
 
-1. 备份原版 `binkw32.dll`，改名为 `binkw32_orig.dll`。
-2. 把编译出的 `binkw32.dll` 放进去。
-3. 把 `build_out\chs.dict` 放进去。
-4. 启动游戏。
+别手工拷，用脚本（它负责互斥、还原旧方案、记账）：
+
+```bat
+python tools\deploy.py --game "<41BB目录>" --apply
+```
 
 首次启动会在游戏目录生成 `tak_chs.log`。
 

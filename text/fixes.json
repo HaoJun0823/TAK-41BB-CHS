@@ -1,0 +1,28 @@
+{
+  "_note": "人工定稿的译文覆盖表。tools/apply_term_fixes.py 会把这里每一条套到 text/*.jsonl 里 en 完全相同的行上（大小写敏感），并打印 before→after。改这里而不是直接改 jsonl，是为了让『人工定稿』有一处可追溯的来源；重跑抽取若覆盖了 jsonl，再执行一次本表即可恢复。",
+  "overrides": {
+    "Play the Machine": "对战电脑",
+    "Play the Adventure": "开始冒险",
+    "Play custom scenario": "开始自定义战役",
+    "Load Game": "载入游戏",
+    "Save Game": "保存游戏",
+    "Control": "操控",
+    "Ladders": "排行榜",
+    "UnCloak": "解除隐身",
+    "Barracuda Carcass": "梭鱼尸体",
+    "Giant Barracuda": "巨型梭鱼",
+    "Barracuda": "梭鱼",
+    "Stone Roc": "石鹏",
+    "Iapur Narrows": "伊亚普尔峡谷",
+    "Monarch Expendable": "君主可牺牲",
+    "disconnect has occurred.": "连接已断开。",
+    "ARASSH Cannonballs": "ARASSH 炮弹",
+    "The %s service failed or took%stoo long. Please see the readme%sfile for more information.": "%s 服务失败或耗时%s过长。请参阅 readme %s 文件获取更多信息。",
+    "The \"%s\" service failed or took %stoo long. Please see the readmee%sfile for more information.": "“%s” 服务失败或耗时%s过长。请参阅 readme %s 文件获取更多信息。"
+  },
+  "id_overrides": {
+    "_note": "长句按 id 覆盖：改整段比在 overrides 里塞整句更好核对。",
+    "05-55e5c2518294": "大胆的旅行者若幸运地抵达其边缘，会讲述毛茸茸的野兽投掷人头大小岩石的故事。还有人提到被泛绿色的光追逐，这听起来与「鬼火」的传说颇为相似。但这些描述也让人联想到沼泽气体在夜晚燃烧的景象。",
+    "05-aaa8b19dd925": "这座城市靠讲故事挣来的名声，胜过它的渔夫和精湛的造船匠！它最著名的儿子、吟游诗人吉尔森曾远赴阿拉蒙各地，他的故事至今仍在传颂，正如一首诗所言：「从托尔凯恩到基隆盆地。」"
+  }
+}

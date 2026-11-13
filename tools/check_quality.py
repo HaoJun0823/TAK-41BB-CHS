@@ -75,6 +75,59 @@ def check_foreign_words(rows):
     return bad
 
 
+# 常见英文虚词/动词：正常中译里不可能连用两个。用于抓「半译」——
+# 整段英文被照抄进译文，而 check_foreign_words 查不出来（因为原文里也有）。
+COMMON_EN = set("""the a an this that these those is are was were be been being
+you your yours we our ours they their them it its he she his her
+to of in on at for with from by as and or but not no yes if then than
+will would can could should shall may might must do does did done have has had
+please press click select enter file files game player players new old
+one two three all any some more most other such only also very""".split())
+
+
+def check_half_translated(rows):
+    """译文里残留 >=2 个常见英文虚词 —— 说明这句只译了一半。"""
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        if not re.search(r"[\u4e00-\u9fff]", r["zh"]):
+            continue
+        s = re.sub(r"%[sd]|<[^>]+>", " ", r["zh"])
+        words = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z'\-]{1,}", s)]
+        hits = [w for w in words if w in COMMON_EN]
+        # 专名里的 of/the（Clash of Nations、The Iron Plague）不算半译：
+        # 原文里同样位置就是大写开头的连续词。
+        if len(hits) >= 2 and not re.search(
+                r"\b[A-Z][a-z]+(?: (?:of|the|and|de|von) [A-Z][a-z]+)+", r["en"]):
+            bad.append((r, "half:%s" % ",".join(hits[:3])))
+    return bad
+
+
+def check_ui_latin(rows):
+    """短标签里出现英文单词：界面直接露英文的高发区（原文短、译文也短）。
+
+    两类不算问题：
+      * 全大写缩写（DLL/MSG/CTRL/ARASSH）—— 技术名，本就不该硬译；
+      * 原文里同拼写的词（metamap、Boneyards、专名）—— 有意保留。
+    """
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        en, zh = r["en"], r["zh"]
+        if len(en) > 24 or not re.search(r"[\u4e00-\u9fff]", zh):
+            continue
+        en_low = en.lower()
+        for w in set(re.findall(r"[A-Za-z]{3,}", zh)):
+            lw = w.lower()
+            if lw in ALLOW or lw in en_low or w.isupper():
+                continue
+            bad.append((r, "ui_en:%s" % w))
+            break
+    return bad
+
+
 def check_numbers(rows):
     """原文的整数应在译文中出现（允许年份/版本被译成中文数字的情况先不查）。"""
     bad = []
@@ -113,6 +166,8 @@ def main():
         rows = load_jsonl(os.path.join(a.text, fn))
         groups = [("专名", check_terms(rows, terms)),
                   ("英文残留", check_foreign_words(rows)),
+                  ("半译", check_half_translated(rows)),
+                  ("界面英文", check_ui_latin(rows)),
                   ("数字丢失", check_numbers(rows))]
         n = sum(len(x[1]) for x in groups)
         total_bad += n

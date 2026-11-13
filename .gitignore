@@ -16,8 +16,17 @@ dist/
 stage/
 __pycache__/
 *.pyc
-# 实机测试脚本要入库，截图不入库
+# 实机测试脚本要入库，截图/产物不入库
 _probe/*
+!_probe/*.py
+!_probe/*.cpp
+!_probe/*.bat
+!_probe/README.md
+_probe/*.png
+_probe/*.exe
+_probe/*.obj
+_probe/*.lib
+_probe/*.exp
 !_probe/*.py
 !_probe/mk.bat
 .workbuddy/

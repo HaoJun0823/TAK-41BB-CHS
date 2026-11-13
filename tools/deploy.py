@@ -5,25 +5,39 @@
 安全约定
 --------
 * **默认只打印计划，不动硬盘**；确认无误后加 --apply 才执行。
-* 绝不删除游戏自带文件：原版 binkw32.dll 是**改名**成 binkw32_orig.dll，
-  不是覆盖。撤回时再改回来。
-* 只写三类东西：binkw32.dll（我们的）、chs.dict、update/ 覆盖层。
-  其余文件一个字节都不碰。
+* 两种代理宿主，二选一，**绝不能同时装**（否则同一进程里会有两份我们
+  的代码，hook 装两遍必炸）：
+    version.dll  推荐。系统 DLL，游戏静态导入它；我们放一个同名代理在
+                 游戏目录，应用目录优先，于是先加载到我们。游戏自带文件
+                 **一个都不用改名**，删掉 version.dll 即还原。
+    binkw32.dll  旧方案。要先把原版改名成 binkw32_orig.dll 再顶替，
+                 会动游戏自带文件的名字，因此不再是默认。
+* 绝不删除游戏自带文件：bink 方案里的改名是**保留**而非覆盖。
+* 只写：代理 DLL、chs.dict、update/ 覆盖层、两个记账文件。
 
 用法
 ----
-    python tools/deploy.py --game "<43BB目录>"                    # 预演
-    python tools/deploy.py --game "<41BB目录>" --apply            # 安装
+    python tools/deploy.py --game "<41BB目录>"                     # 预演（version 代理）
+    python tools/deploy.py --game "<41BB目录>" --apply             # 安装
+    python tools/deploy.py --game "<41BB目录>" --apply --proxy binkw32
     python tools/deploy.py --game "<41BB目录>" --apply --uninstall # 撤回
 """
 
 import argparse
+import filecmp
 import os
 import shutil
 import sys
 
-MARKER = ".tak_chs_installed"   # 装过的痕迹，撤回时据此判断哪些是我们放的
+MARKER = ".tak_chs_installed"    # 装过的痕迹，撤回时据此判断哪些是我们放的
 MANIFEST = ".tak_chs_files.txt"  # 我们写进去的文件清单（相对路径），撤回时按单删
+
+# 代理宿主：输出文件名 → 说明
+PROXIES = {
+    "version": "version.dll",
+    "binkw32": "binkw32.dll",
+}
+DEFAULT_PROXY = "version"
 
 
 def check_game(game):
@@ -52,29 +66,45 @@ def walk_files(root):
     return out
 
 
-def plan_install(game, assets, dll):
-    """返回 (actions, warnings)。每个 action 是 (说明, 源, 目标) 或 (说明, None, 目标)。"""
+def plan_install(game, assets, dll, proxy):
+    """返回 (actions, warnings)。
+
+    action = (说明, 源, 目标 [, 模式])
+        模式 copy（默认）：复制；restore：复制并校验后删源；write：写记账文件。
+    """
     acts, warns = [], []
 
     exe_ok, exe = check_game(game)
     if not exe_ok:
         return None, [exe]
 
-    # 1) DLL
-    if dll and os.path.isfile(dll):
-        orig = os.path.join(game, "binkw32.dll")
-        backup = os.path.join(game, "binkw32_orig.dll")
-        if os.path.isfile(backup):
-            acts.append(("覆盖代理 DLL（原版已在 binkw32_orig.dll）", dll, orig))
-        elif os.path.isfile(orig):
+    proxy_file = PROXIES[proxy]
+    bink = os.path.join(game, "binkw32.dll")
+    bink_bak = os.path.join(game, "binkw32_orig.dll")
+
+    # 0) 上一版装的是 bink 代理的话，先把原版换回去。
+    #    不做这一步就装 version 代理，游戏目录里会留着「我们的 binkw32.dll」，
+    #    两个代理同时生效 —— hook 装两遍，必崩。
+    if proxy != "binkw32" and os.path.isfile(bink_bak):
+        acts.append(("还原原版 binkw32.dll（内容取自 binkw32_orig.dll，校验后删备份）",
+                     bink_bak, bink, "restore"))
+
+    # 1) 代理 DLL
+    if not (dll and os.path.isfile(dll)):
+        return None, ["没找到代理 DLL（%s）" % (dll or "未指定")]
+    if proxy == "binkw32":
+        if os.path.isfile(bink_bak):
+            acts.append(("覆盖代理 DLL（原版已在 binkw32_orig.dll）", dll, bink))
+        elif os.path.isfile(bink):
             acts.append(("原版 binkw32.dll → binkw32_orig.dll（改名，不覆盖）",
-                         orig, backup))
-            acts.append(("放入代理 DLL", dll, orig))
+                         bink, bink_bak))
+            acts.append(("放入代理 DLL", dll, bink))
         else:
             warns.append("游戏目录没有 binkw32.dll —— 该副本可能不用 Bink，"
-                         "代理方案不适用，只能改用 ASI Loader")
+                         "请改用 --proxy version")
     else:
-        warns.append("没找到 %s，跳过 DLL（只装 TDF 覆盖层）" % (dll or "binkw32.dll"))
+        acts.append(("放入代理 %s（游戏自带文件不动）" % proxy_file, dll,
+                     os.path.join(game, proxy_file)))
 
     # 2) 字典
     dict_src = os.path.join(assets, "chs.dict")
@@ -106,27 +136,35 @@ def plan_install(game, assets, dll):
         warns.append("没找到 %s，跳过 TDF 覆盖层" % tr)
 
     acts.append(("写入安装标记（供撤回识别）", None,
-                 os.path.join(game, MARKER)))
+                 os.path.join(game, MARKER), "write"))
     acts.append(("写入文件清单（撤回据此精确删除）", None,
-                 os.path.join(game, MANIFEST)))
+                 os.path.join(game, MANIFEST), "write"))
     return acts, warns
 
 
 def do_install(game, acts, apply_):
     total = 0
     written = []
-    for desc, src, dst in acts:
+    for act in acts:
+        desc, src, dst = act[0], act[1], act[2]
+        mode = act[3] if len(act) > 3 else "copy"
         size = os.path.getsize(src) if src else 0
         total += size
-        print("  %-52s %s" % (desc[:52], human(size) if size else "-"))
+        print("  %-56s %s" % (desc[:56], human(size) if size else "-"))
         if not apply_:
             continue
         os.makedirs(os.path.dirname(dst), exist_ok=True)
-        if src is None:
+        if mode == "write":
             with open(dst, "w", encoding="utf-8", newline="\n") as f:
                 f.write("installed by TAK_41BB_CHS\n")
         elif os.path.abspath(src) != os.path.abspath(dst):
             shutil.copy2(src, dst)
+        if mode == "restore":
+            # 校验一致才删备份：宁可留个多余文件，也不能把原版弄丢
+            if filecmp.cmp(src, dst, shallow=False):
+                os.remove(src)
+            else:
+                raise RuntimeError("还原 binkw32.dll 后校验不一致，已保留备份 %s" % src)
         rel = os.path.relpath(dst, game)
         if rel not in (MARKER, MANIFEST):
             written.append(rel.replace("\\", "/"))
@@ -150,7 +188,8 @@ def plan_uninstall(game):
                      "强行撤回有风险，已中止" % MARKER)
         return None, warns
 
-    # 按清单精确删除：update/ 里可能还混着别的补丁，不能整个目录端掉
+    # 按清单精确删除：update/ 里可能还混着别的补丁，不能整个目录端掉。
+    # 代理 DLL 也在清单里，所以会一起被删掉。
     if os.path.isfile(manifest):
         with open(manifest, encoding="utf-8") as f:
             for line in f:
@@ -161,21 +200,21 @@ def plan_uninstall(game):
                 if os.path.isfile(p):
                     acts.append(("删 %s" % rel.replace("\\", "/"), p, None))
     else:
-        warns.append("没有文件清单，只撤回 DLL 与 chs.dict，update/ 保持原样")
-        for name in ("chs.dict",):
+        warns.append("没有文件清单，只撤回代理 DLL 与 chs.dict，update/ 保持原样")
+        for name in (PROXIES[DEFAULT_PROXY], "chs.dict"):
             p = os.path.join(game, name)
             if os.path.isfile(p):
                 acts.append(("删 %s" % name, p, None))
 
-    proxy = os.path.join(game, "binkw32.dll")
-    backup = os.path.join(game, "binkw32_orig.dll")
-    if os.path.isfile(backup):
-        acts.append(("删掉代理 DLL", proxy, None))
-        acts.append(("binkw32_orig.dll → binkw32.dll（改回原名）", backup, proxy))
-    elif os.path.isfile(proxy):
-        acts.append(("删掉代理 DLL（没有原版备份可还原）", proxy, None))
+    # bink 方案留下的原版备份：改回原名。必须在删代理之后执行。
+    bink = os.path.join(game, "binkw32.dll")
+    bink_bak = os.path.join(game, "binkw32_orig.dll")
+    if os.path.isfile(bink_bak):
+        if os.path.isfile(bink):
+            acts.append(("删掉代理 DLL（binkw32.dll）", bink, None))
+        acts.append(("binkw32_orig.dll → binkw32.dll（改回原名）", bink_bak, bink))
 
-    acts.append(("删掉安装标记与清单", marker, None))
+    acts.append(("删掉安装标记", marker, None))
     acts.append(("删掉文件清单", manifest, None))
     return acts, warns
 
@@ -197,16 +236,20 @@ def main():
     ap = argparse.ArgumentParser(description="部署/撤回 TAK 汉化")
     ap.add_argument("--game", required=True, help="游戏根目录（含 KINGDOMS.icd）")
     ap.add_argument("--assets", default="build_out", help="资产目录（默认 build_out）")
-    ap.add_argument("--dll", default=os.path.join("build_dll", "binkw32.dll"),
-                    help="编译出的代理 DLL")
+    ap.add_argument("--proxy", default=DEFAULT_PROXY, choices=sorted(PROXIES),
+                    help="代理宿主 DLL（默认 %s）" % DEFAULT_PROXY)
+    ap.add_argument("--dll", default=None,
+                    help="代理 DLL 路径（默认 build_dll/<proxy>）")
     ap.add_argument("--apply", action="store_true", help="真正执行（默认只预演）")
     ap.add_argument("--uninstall", action="store_true", help="撤回")
     a = ap.parse_args()
 
+    dll = a.dll or os.path.join("build_dll", PROXIES[a.proxy])
     game = os.path.abspath(a.game)
     print("游戏目录: %s" % game)
     print("资产目录: %s" % os.path.abspath(a.assets))
-    print("DLL     : %s" % (os.path.abspath(a.dll) if a.dll else "(跳过)"))
+    print("代理宿主: %s" % PROXIES[a.proxy])
+    print("DLL     : %s" % os.path.abspath(dll))
     print()
 
     if a.uninstall:
@@ -218,7 +261,7 @@ def main():
         print("撤回计划：")
         do_uninstall(acts, a.apply)
     else:
-        acts, warns = plan_install(game, os.path.abspath(a.assets), a.dll)
+        acts, warns = plan_install(game, os.path.abspath(a.assets), dll, a.proxy)
         if acts is None:
             for w in warns:
                 print("[中止] " + w)

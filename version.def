@@ -1,0 +1,33 @@
+; version.def —— version.dll 代理的导出表
+;
+; 与 binkw32.def 的做法不同：那里可以直接用 PE 的**导出转发**
+; （_BinkOpen@8=binkw32_orig._BinkOpen@8），因为原版还在游戏目录里、名字不同。
+; 这里不行 —— 转发记录只能写「模块名.函数名」，loader 按名字查找会又找到
+; 我们自己（应用目录优先），转发就变成了自我递归。所以改成代码跳板：
+; 每个导出指向 chs_px_<名字>，由它在第一次调用时按全路径加载
+; %SystemRoot%\SysWOW64\version.dll，取到真地址后直接跳过去。
+;
+; 序号必须与系统 version.dll 一致（基址 1，共 17 项）：万一有调用方按序号
+; 导入（而不是按名字），也能对上。序号顺序 = 系统 DLL 导出表里名字表的顺序，
+; 与 proxy_version.cpp 的 CHS_VERSION_EXPORTS 一致，改一处要改两处。
+
+LIBRARY version
+
+EXPORTS
+    GetFileVersionInfoA=chs_px_GetFileVersionInfoA @1
+    GetFileVersionInfoByHandle=chs_px_GetFileVersionInfoByHandle @2
+    GetFileVersionInfoExA=chs_px_GetFileVersionInfoExA @3
+    GetFileVersionInfoExW=chs_px_GetFileVersionInfoExW @4
+    GetFileVersionInfoSizeA=chs_px_GetFileVersionInfoSizeA @5
+    GetFileVersionInfoSizeExA=chs_px_GetFileVersionInfoSizeExA @6
+    GetFileVersionInfoSizeExW=chs_px_GetFileVersionInfoSizeExW @7
+    GetFileVersionInfoSizeW=chs_px_GetFileVersionInfoSizeW @8
+    GetFileVersionInfoW=chs_px_GetFileVersionInfoW @9
+    VerFindFileA=chs_px_VerFindFileA @10
+    VerFindFileW=chs_px_VerFindFileW @11
+    VerInstallFileA=chs_px_VerInstallFileA @12
+    VerInstallFileW=chs_px_VerInstallFileW @13
+    VerLanguageNameA=chs_px_VerLanguageNameA @14
+    VerLanguageNameW=chs_px_VerLanguageNameW @15
+    VerQueryValueA=chs_px_VerQueryValueA @16
+    VerQueryValueW=chs_px_VerQueryValueW @17

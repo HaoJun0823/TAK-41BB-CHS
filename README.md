@@ -17,9 +17,10 @@
 | 翻译 | **完成**，4297 译 / 346 跳过 / 0 待确认（07 组 3766 条候选池待 IDA 确认） |
 | DLL 方案（IDA 定位语言槽 / 字库 / hook 点） | **完成**，见 `docs/02-IDA与DLL方案.md` |
 | 资产打包（明文 → 补丁，CI 三段式） | **完成**，见 `.github/workflows/build-assets.yml` |
-| DLL 实现（文本 hook + binkw32 代理） | **完成**，见 `docs/03-DLL构建与验证.md` |
+| DLL 实现（文本 hook + 代理注入） | **完成**，见 `docs/03-DLL构建与验证.md` |
 | 中文字库层（运行时纹理帧） | **完成并实机验证**，见 [`docs/04-中文字库层.md`](docs/04-中文字库层.md) |
 | 4.1BB 光盘校验（内存短路，磁盘不动） | **完成并实机验证**，见 [`docs/05-版本差异与光盘校验.md`](docs/05-版本差异与光盘校验.md) |
+| 代理宿主改为 `version.dll`（不再改 `binkw32.dll`） | **完成并实机验证**，见 [`docs/06-代理DLL注入.md`](docs/06-代理DLL注入.md) |
 | CI 编译 DLL（`build-dll.yml`，带导出表门禁） | **完成** |
 | 联机实测 | 待做 |
 
@@ -28,7 +29,8 @@
 `TextHandler`。但 GAF 位图字库是「12 槽 × 每槽 256 单字节字形」，
 且引擎不做 DBCS 处理。因此 DLL 采用**混合方案**：
 `Chinese` 语言槽管 UI 词条 + hook `sub_544020`/`sub_544110` 管其余文本 +
-hook 字形绘制补 GBK 中文 + `binkw32.dll` 代理注入，**磁盘游戏文件零改动**。
+hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文件零改动**
+（连 `binkw32.dll` 都不再改名，卸载就是删掉一个我们放进去的系统 DLL 同名文件）。
 
 ## 目录
 
@@ -41,6 +43,7 @@ hook 字形绘制补 GBK 中文 + `binkw32.dll` 代理注入，**磁盘游戏文
 | [`docs/03-DLL构建与验证.md`](docs/03-DLL构建与验证.md) | DLL 构建链、部署方式、实机验证流程 |
 | [`docs/04-中文字库层.md`](docs/04-中文字库层.md) | **中文字库层**：字体槽布局、造帧 API、GBK 双字节绘制、换行/居中的字距表补丁、踩过的坑 |
 | [`docs/05-版本差异与光盘校验.md`](docs/05-版本差异与光盘校验.md) | **4.0BB 与 4.1BB 的 43 字节差异**、版本号来源、光盘校验机制、内存短路的两处补丁 |
+| [`docs/06-代理DLL注入.md`](docs/06-代理DLL注入.md) | **代理宿主选型**（为何是 `version.dll`）、17 个导出的裸跳板、进程守卫与那次「什么都没发生」的判定 bug、验证手段 |
 | `tools/hpi_v2.py` | HPI v2 纯 Python 读取器：`list` / `extract` / `survey` / `inventory` / `verify` |
 | `tools/extract_strings.py` | 从干净 41BB 抽取全部待译英文，生成 `text/*.jsonl` |
 | `tools/verify_strings.py` | 独立校验：格式、唯一性、占位符、编码指纹、与基线一致 |

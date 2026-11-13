@@ -1,6 +1,8 @@
 // translate.cpp
 #include "translate.h"
 
+#include <string.h>
+
 #include "dict.h"
 #include "hook.h"
 #include "log.h"
@@ -58,6 +60,92 @@ void LogMiss(const char* s) {
     if (g_miss_cs_ready) LeaveCriticalSection(&g_miss_cs);
 }
 
+// ---- 结构化提示串：#Enter#Ok#Esc#Cancel ----
+//
+// 这类串写在 .gui 里（build_out/update/**/guis/*.gui 第 14 行附近），从来
+// 没进过抽取清单，所以运行时整串 miss、界面上露英文。格式是
+// `#按键#标签#按键#标签…`，偶数位是按键名（Enter/Esc，不能译），奇数位
+// 是动作标签（Ok/Play/Cancel，必须译）。
+//
+// 不走字典的原因：字典里 "Play" 是「播放」（影视语境），而提示条里应是
+// 「开始」；两处语义不同，硬改字典会污染别处。
+struct HintWord {
+    const char* en;
+    const char* zh;
+};
+const HintWord kHintWords[] = {
+    {"ok", "确定"},        {"okay", "确定"},      {"cancel", "取消"},
+    {"play", "开始"},      {"previous", "返回"},  {"proceed", "继续"},
+    {"mainmenu", "主菜单"}, {"resume", "继续"},    {"join", "加入"},
+    {"yes", "是"},         {"no", "否"},          {"savegame", "保存游戏"},
+    {"loadgame", "载入游戏"}, {"exit", "退出"},     {"back", "返回"},
+    {"next", "下一步"},    {"done", "完成"},      {"close", "关闭"},
+    {"start", "开始"},     {"quit", "退出游戏"},   {"restart", "重新开始"},
+};
+
+bool EqualsNoCase(const char* a, int n, const char* b) {
+    int i = 0;
+    for (; i < n; ++i) {
+        if (!b[i]) return false;
+        char c = a[i];
+        if (c >= 'A' && c <= 'Z') c = static_cast<char>(c + 32);
+        if (c != b[i]) return false;
+    }
+    return b[i] == 0;
+}
+
+const char* HintWordZh(const char* s, int n) {
+    for (int i = 0; i < static_cast<int>(sizeof(kHintWords) / sizeof(kHintWords[0])); ++i) {
+        if (EqualsNoCase(s, n, kHintWords[i].en)) return kHintWords[i].zh;
+    }
+    return nullptr;
+}
+
+// 环形缓冲：返回给引擎的串必须活到下一次调用之后（引擎可能整帧持有）。
+// 8 槽足够，且这里只在主线程的 UI 绘制路径上调用。
+char g_hint_buf[8][192];
+volatile LONG g_hint_slot = 0;
+volatile LONG g_hint_hits = 0;
+
+const char* TranslateHint(const char* s) {
+    if (!s || s[0] != '#') return nullptr;
+
+    const char* tok[10];
+    int len[10];
+    int ntok = 0;
+    const char* p = s + 1;
+    while (*p && ntok < 10) {
+        const char* q = p;
+        while (*q && *q != '#') ++q;
+        tok[ntok] = p;
+        len[ntok] = static_cast<int>(q - p);
+        ++ntok;
+        p = *q ? q + 1 : q;
+    }
+    if (ntok < 2) return nullptr;   // 只有一个 #，多半不是提示串
+
+    char* out = g_hint_buf[InterlockedIncrement(&g_hint_slot) & 7];
+    int n = 0;
+    bool changed = false;
+    for (int i = 0; i < ntok; ++i) {
+        if (n + 1 >= static_cast<int>(sizeof(g_hint_buf[0]))) return nullptr;
+        out[n++] = '#';
+        const char* zh = (i & 1) ? HintWordZh(tok[i], len[i]) : nullptr;
+        const char* src = zh ? zh : tok[i];
+        const int sl = zh ? static_cast<int>(strlen(zh)) : len[i];
+        if (n + sl >= static_cast<int>(sizeof(g_hint_buf[0]))) return nullptr;
+        memcpy(out + n, src, sl);
+        n += sl;
+        if (zh) changed = true;
+    }
+    out[n] = 0;
+
+    if (changed && InterlockedIncrement(&g_hint_hits) <= 8) {
+        CHS_LOG("hint: %s -> %s", s, out);
+    }
+    return changed ? out : nullptr;
+}
+
 const char* __stdcall DetourForward(const char* s) {
     InterlockedIncrement(&g_calls);
     // 先让引擎自己走一遍：原生 Chinese 语言槽若已命中，结果比我们的字典
@@ -67,6 +155,13 @@ const char* __stdcall DetourForward(const char* s) {
     if (r != s) {
         InterlockedIncrement(&g_hits);   // 引擎命中
         return r;
+    }
+    // 结构化提示串（#Enter#Ok#Esc#Cancel）先按语法拆开，只译标签位。
+    // 逐条列 15 种组合既难维护又漏大小写变体，这里一次解决。
+    const char* hint = TranslateHint(s);
+    if (hint) {
+        InterlockedIncrement(&g_hits);
+        return hint;
     }
     const char* zh = g_dict.ToChinese(s);
     if (zh) {

@@ -180,7 +180,7 @@ def log_ready():
         return False
 
 
-def wait_ready(p, timeout=90):
+def wait_ready(p, timeout=180):
     """Do NOT touch the game before it renders: stealing focus during the
     intro makes it sit on a black screen. The display-mode switch happens
     almost immediately (still black), so the real marker is the first menu
