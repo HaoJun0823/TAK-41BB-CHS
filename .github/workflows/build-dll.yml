@@ -1,0 +1,124 @@
+name: build-dll
+
+# ============================================================================
+# DLL 编译（binkw32.dll 代理 + 文本 hook + 中文字库层）
+# ----------------------------------------------------------------------------
+# 与 build-assets.yml 分开：资产是纯文本→二进制、跑在 linux runner 上；
+# DLL 要 MSVC 工具链，只能 windows runner。
+#
+# 为什么产物要过 dumpbin 门禁
+#   这个 DLL 顶在原版 binkw32.dll 的位置上，靠 PE 导出转发把 10 个 Bink 函数
+#   原样指回 binkw32_orig.dll。导出表少一条，游戏启动时就报「找不到入口点」，
+#   而那种错误发生在玩家机器上、没有任何日志 —— 所以在 CI 里先验一遍。
+#
+# 产物（artifact: tak-dll）
+#   binkw32.dll   丢进游戏根目录即可（原版改名 binkw32_orig.dll）
+# ============================================================================
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'src/**'
+      - 'dllmain.cpp'
+      - 'pch.*'
+      - 'framework.h'
+      - 'binkw32.def'
+      - '*.vcxproj'
+      - '.github/workflows/build-dll.yml'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'src/**'
+      - 'dllmain.cpp'
+      - 'pch.*'
+      - 'framework.h'
+      - 'binkw32.def'
+      - '*.vcxproj'
+      - '.github/workflows/build-dll.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 编译 DLL
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v7.0.1
+        with:
+          submodules: false   # TAUtil 只是文档/结构参考，编译用不到
+
+      # windows-latest 自带 VS，但 v141 工具集不一定装。工程写的是 v141/v141_xp
+      # （为了保住 XP 兼容），所以先按工程原样编；装不到再退到 runner 默认工具集。
+      - name: 编译
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild `
+                                -find 'MSBuild\**\Bin\MSBuild.exe' |
+                      Select-Object -First 1
+          if (-not $msbuild) { throw '找不到 MSBuild.exe' }
+          Write-Host "MSBuild: $msbuild"
+
+          function Build($extra) {
+            & $msbuild TAK_41BB_CHS.vcxproj /nologo /m /v:minimal `
+                       /p:Configuration=Release /p:Platform=Win32 /p:OutDir=dist\ @extra
+            return $LASTEXITCODE
+          }
+
+          if ((Build @()) -ne 0) {
+            Write-Warning 'v141 工具集不可用，回退到 runner 默认工具集（产物可能不再支持 XP）'
+            if ((Build @('/p:PlatformToolset=v143')) -ne 0) { throw 'DLL 编译失败' }
+          }
+          if (-not (Test-Path 'dist\binkw32.dll')) { throw '没有产出 dist\binkw32.dll' }
+          Get-Item 'dist\binkw32.dll' | Format-List Name, Length
+
+      # 导出表门禁：10 个 Bink 入口必须都在（且要看到转发到 binkw32_orig 的记录）。
+      # 判据故意用「整段输出里出现这个名字」而不是解析列对齐 —— dumpbin 的列宽
+      # 在不同版本里会变，解析列等于给自己埋一个假失败。
+      - name: 校验导出表
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $dumpbin = & $vswhere -latest -products * `
+                                -find 'VC\Tools\MSVC\**\bin\Hostx64\x86\dumpbin.exe' |
+                     Select-Object -First 1
+          if (-not $dumpbin) { throw '找不到 dumpbin.exe' }
+
+          $text = (& $dumpbin /exports dist\binkw32.dll) -join "`n"
+
+          # 期望名单直接从 .def 取，避免两处各写一份、改了一处忘了另一处
+          $need = Select-String -Path binkw32.def -Pattern '^\s*(\S+)=binkw32_orig\.' |
+                  ForEach-Object { $_.Matches[0].Groups[1].Value }
+          if (-not $need) { throw 'binkw32.def 里没解析到转发条目' }
+          Write-Host "应为 $($need.Count) 个导出: $($need -join ', ')"
+
+          $miss = $need | Where-Object { $text -notmatch [regex]::Escape($_) }
+          if ($miss) { throw "缺少导出: $($miss -join ', ')" }
+
+          if ($text -notmatch 'binkw32_orig') {
+            throw '没有看到转发到 binkw32_orig 的记录，.def 可能没生效'
+          }
+          Write-Host '导出表校验通过'
+
+          if (-not ($out | Select-String 'binkw32_orig')) {
+            throw '没有看到转发到 binkw32_orig 的记录，.def 可能没生效'
+          }
+
+      - name: 上传 DLL
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: tak-dll
+          path: dist/binkw32.dll
+          if-no-files-found: error
+          retention-days: 90

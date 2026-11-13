@@ -19,6 +19,7 @@
 | 资产打包（明文 → 补丁，CI 三段式） | **完成**，见 `.github/workflows/build-assets.yml` |
 | DLL 实现（文本 hook + binkw32 代理） | **完成**，见 `docs/03-DLL构建与验证.md` |
 | 中文字库层（运行时纹理帧） | **完成并实机验证**，见 [`docs/04-中文字库层.md`](docs/04-中文字库层.md) |
+| CI 编译 DLL（`build-dll.yml`，带导出表门禁） | **完成** |
 | 联机实测 | 待做 |
 
 **IDA 核心结论**：引擎自带完整本地化链路 —— `WinMain` 读 `Language` →
