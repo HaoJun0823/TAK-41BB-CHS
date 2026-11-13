@@ -242,7 +242,7 @@ def check_update(out, errors, warns):
     """
     udir = os.path.join(out, "update")
     if not os.path.isdir(udir):
-        return 0, 0
+        return 0
     files = ok = 0
     bad = 0
     for root, _, fs in os.walk(udir):

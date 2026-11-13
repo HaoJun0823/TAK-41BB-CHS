@@ -54,33 +54,34 @@ def main():
     for fn in files:
         path = os.path.join(a.text, fn)
         rows = load(path)
-        changed = 0
+        dirty = 0
         for r in rows:
             total_rows += 1
-            for field in ("zh",):
-                old = r.get(field) or ""
-                new = T.gbk_safe(old)
-                if new != old:
-                    for ch in old:
-                        if ch not in new:
-                            touched[ch] += 1
-                    r[field] = new
-                    total_fields += 1
-        if changed or True:
-            still = 0
-            for r in rows:
-                for ch in (r.get("zh") or ""):
-                    try:
-                        ch.encode("gbk")
-                    except UnicodeEncodeError:
-                        still += 1
-            if total_fields and a.write:
-                with open(path, "w", encoding="utf-8", newline="\n") as f:
-                    for r in rows:
-                        f.write(json.dumps(r, ensure_ascii=False,
-                                           separators=(",", ":")) + "\n")
-            if still:
-                print("%-24s 仍有 %d 个 GBK 非法字符" % (fn, still))
+            old = r.get("zh") or ""
+            new = T.gbk_safe(old)
+            if new != old:
+                for ch in old:
+                    if ch not in new:
+                        touched[ch] += 1
+                r["zh"] = new
+                dirty += 1
+                total_fields += 1
+        # 残留扫描独立于 dirty：即使本轮没改，也要报出仍然非法的字符
+        still = 0
+        for r in rows:
+            for ch in (r.get("zh") or ""):
+                try:
+                    ch.encode("gbk")
+                except UnicodeEncodeError:
+                    still += 1
+        # 只写回真正改过的文件，避免无改动文件被重排产生 diff 噪声
+        if dirty and a.write:
+            with open(path, "w", encoding="utf-8", newline="\n") as f:
+                for r in rows:
+                    f.write(json.dumps(r, ensure_ascii=False,
+                                       separators=(",", ":")) + "\n")
+        if still:
+            print("%-24s 仍有 %d 个 GBK 非法字符" % (fn, still))
 
     if touched:
         print("清洗掉的字符：")

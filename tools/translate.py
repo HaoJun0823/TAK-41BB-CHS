@@ -64,7 +64,9 @@ PRODUCT_REPLACE = (
 # GBK 本身覆盖了全部常用中文标点（— ‘’“” … 、。，！？《》均可用），
 # 所以只需给少数几个缺口配等价物，其余编不了的一律清掉。
 GBK_FALLBACK = {
-    "\u2022": "\u00b7",   # • → ·（A1A4，中文项目符号）
+    # • → ●（A1F1，实心圆点）：实测 211 处全是任务简报的行首列表符号，
+    # 用实心点最贴近原版观感；· (A1A4) 太窄，当项目符号会看不清。
+    "\u2022": "\u25cf",
     "\u00a0": " ",        # 不间断空格 → 普通空格
     "\u2122": "",         # ™ GBK 无
     "\u00a9": "",         # © GBK 无（上下文已写"版权所有"）
@@ -268,8 +270,8 @@ def problems(en, zh, phs):
         p.append("too_long")
     if zh.strip() == en.strip() and len(en.split()) > 1 and not KEY_RE.match(en.strip()):
         p.append("identical")
-    # 项目符号：GBK 没有 •(U+2022)，归一化后会变成 ·(U+00B7)，两者都算保留
-    if en.startswith("•") and zh[:1] not in ("•", "·"):
+    # 项目符号：GBK 没有 •(U+2022)，归一化后会变成 ●(U+25CF)，两者都算保留
+    if en.startswith("•") and zh[:1] not in ("•", "●"):
         p.append("bullet_lost")
     return p
 
