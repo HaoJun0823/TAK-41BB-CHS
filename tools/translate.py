@@ -511,7 +511,8 @@ def write_rows(path, rows):
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as f:
         for r in rows:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+            # 与 extract_strings.py 的紧凑格式保持一致，否则整文件都会进 diff
+            f.write(json.dumps(r, ensure_ascii=False, separators=(",", ":")) + "\n")
     os.replace(tmp, path)
 
 
