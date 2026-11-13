@@ -29,13 +29,14 @@ hook 字形绘制补 GBK 中文 + `binkw32.dll` 代理注入，**磁盘游戏文
 
 | 路径 | 内容 |
 |---|---|
-| [`text/`](text/README.md) | **明文待译表**：7 个 `.jsonl`、`manifest.json`、格式说明与 [`glossary.md`](text/glossary.md) |
+| [`text/`](text/README.md) | **明文待译表**：7 个 `.jsonl`、`manifest.json`、格式说明、[`glossary.md`](text/glossary.md) 与专名锁定表 [`terms.json`](text/terms.json) |
 | [`docs/00-调研结论.md`](docs/00-调研结论.md) | 前期调查：版本谱系、六类载体、字库、注入方案 |
 | [`docs/01-待译表与打包约定.md`](docs/01-待译表与打包约定.md) | HPI v2 索引块格式、数据规模、workflow 三段式接口、未解决项 |
 | [`docs/02-IDA与DLL方案.md`](docs/02-IDA与DLL方案.md) | IDA 静态分析：文本管线、语言槽、字库上限、DLL 分层架构、hook 签名、联机保护、验证清单 |
 | `tools/hpi_v2.py` | HPI v2 纯 Python 读取器：`list` / `extract` / `survey` / `inventory` / `verify` |
 | `tools/extract_strings.py` | 从干净 41BB 抽取全部待译英文，生成 `text/*.jsonl` |
 | `tools/verify_strings.py` | 独立校验：格式、唯一性、占位符、编码指纹、与基线一致 |
+| `tools/translate.py` | 用 LLM API 批量回填 `zh`/`status`：跨组去重、占位符强校验、断点续传、失败降级 |
 | `tools/build_assets.py` | 明文 → 资产补丁（CI 模式无需游戏本体） |
 | `inventory/` | `hpi_files.csv`（9037 条资源记录）、`non_translatable.csv`（921 项需人工制作资产） |
 | `TAUtil/` | git submodule，MIT，© 2014 ArmouredFish —— 提供 HPI/GAF/TDF 结构定义 |
@@ -49,7 +50,7 @@ GAME="<干净 41BB 游戏目录>"
 python tools/hpi_v2.py verify "$GAME"
 python tools/extract_strings.py --game "$GAME" --out text
 python tools/verify_strings.py --text text --against-game "$GAME"
-python tools/build_assets.py --text text --out build_out --slot Italian --strict
+python tools/build_assets.py --text text --out build_out --slot Chinese --strict
 ```
 
 范式参考：`G:/Projects/MajestyIIExtend`（明文词典 + fontgen + ASI）、

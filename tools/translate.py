@@ -47,7 +47,7 @@ KEY_RE = re.compile(
 )
 
 # 服务器模板变量 / 纯占位串，玩家看不到，翻译只会破坏模板
-TEMPLATE_RE = re.compile(r"^(?:<\$[^>]*\$>[\s/|,;:·\-]*)+$")
+TEMPLATE_RE = re.compile(r"^(?:<\$[^>]*>[\s/|,;:·()\-]*)+$")
 
 # 产品名统一（模型有时保留英文，有时译一半，这里兜底）
 PRODUCT_REPLACE = (
@@ -57,11 +57,12 @@ PRODUCT_REPLACE = (
 )
 
 SYSTEM = """你是《横扫千军：王国风云》(Total Annihilation: Kingdoms) 的简体中文本地化译者。
-用户会给出一个 JSON 数组，每项含 i（编号）、en（英文原文）、ctx（使用场景）。
-请逐条翻译成简体中文，并输出一个 JSON 对象：键是编号字符串，值是译文。
+用户会给出一个 JSON 数组，每项含 en（英文原文）、ctx（使用场景）。
+请逐条翻译成简体中文，并输出一个 JSON 对象：键必须原样照抄该项的 en 原文，值是译文。
 
 硬性要求：
 1. 只输出 JSON 对象本身，不要解释、不要 markdown 代码块、不要多个候选。
+1b. 每个 en 都必须出现且只出现一次；不得合并、跳过或改写键名。
 2. 忠实且简洁，不增删信息。界面按钮/标签用短词，不要写成句子。
 3. 不要擅自加书名号《》、引号、括号注释；原文有才保留。
 4. %s %d %ld %u %02x %% 这类 printf 占位符和 <...> 标签必须原样保留，数量与顺序不能变。
@@ -117,6 +118,25 @@ def skip_reason(en):
         return "keybinding"
     if TEMPLATE_RE.match(s):
         return "template_var"
+    # 资源文件名 / 开发备注，玩家看不到
+    if re.search(r"\.(pcx|bmp|tga|png|jpe?g|gif|wav|bik|gaf)\b", s, re.I):
+        return "asset_ref"
+    # takmission03_MT / unitname_DH 这类内部标识
+    if re.fullmatch(r"[a-z][a-z0-9]*(?:_[A-Za-z0-9]+)+", s) and re.search(r"[A-Z]", s):
+        return "internal_id"
+    # SepheryneSepheryne 这类重复拼接的占位名
+    if re.fullmatch(r"(.{4,})\1", s):
+        return "duplicated_id"
+    # 日期/数字格式串，翻了会破坏格式化
+    if re.search(r"\b(dddd|MMMM|yyyy|hh:mm|mm:ss)\b", s):
+        return "date_format"
+    # 产品名/系统名，按原样保留
+    if re.fullmatch(r"(Windows( NT| 95| 98| 2000| XP)?|DirectX|Internet Explorer|"
+                    r"Netscape|Boneyards|TA:? Kingdoms)", s, re.I):
+        return "product_name"
+    # 扫描出来的乱码（无元音、长短不齐的片段）
+    if re.search(r"[A-Za-z]{2,}", s) and not re.search(r"[aeiouAEIOU]", s):
+        return "no_vowel"
     if not re.search(r"[A-Za-z]", s):
         return "no_latin"
     if re.fullmatch(r"[vV]?\d+(?:\.\d+)+[a-zA-Z]?", s):
@@ -155,11 +175,30 @@ def make_ctx(row):
     return "；".join(b for b in bits if b)
 
 
+def flatten(value):
+    """模型偶尔会返回 {"type":"paragraph","text":"..."} 这种嵌套结构，取出正文。"""
+    if isinstance(value, dict):
+        for k in ("zh", "text", "translation", "content", "value", "message"):
+            if k in value:
+                return flatten(value[k])
+        parts = [flatten(v) for v in value.values() if isinstance(v, (str, dict, list))]
+        return "".join(p for p in parts if p)
+    if isinstance(value, list):
+        return "".join(flatten(v) for v in value if isinstance(v, (str, dict, list)))
+    s = str(value).strip()
+    if s[:1] in "{[":
+        try:
+            return flatten(json.loads(s))
+        except Exception:
+            pass
+    return s
+
+
 def normalize(zh, en):
     """去掉模型爱加的外壳，保持与原文同构。"""
     if zh is None:
         return ""
-    s = str(zh).strip()
+    s = flatten(zh).strip()
     s = re.sub(r"^(?:译文|翻译|translation)\s*[:：]\s*", "", s, flags=re.I)
     s = re.sub(r"^```(?:json)?\s*", "", s)
     s = re.sub(r"\s*```$", "", s)
@@ -192,7 +231,8 @@ def problems(en, zh, phs):
     for ph in phs:
         if zh.count(ph) != en.count(ph):
             p.append("placeholder:%s" % ph)
-    if len(zh) > max(40, len(en) * 2.2):
+    # 中文通常比英文短；译文明显长于原文，多半是错位或把说明塞进了标签
+    if len(zh) > max(24, len(en) * 1.8):
         p.append("too_long")
     if zh.strip() == en.strip() and len(en.split()) > 1 and not KEY_RE.match(en.strip()):
         p.append("identical")
@@ -267,7 +307,10 @@ class Client(object):
 
     def translate_batch(self, items):
         body = json.dumps(items, ensure_ascii=False)
-        max_tokens = min(8192, 600 + int(sum(len(x["en"]) for x in items) * 1.2))
+        # Qwen3 默认会先思考；预算给少了会被截断成半截 JSON，
+        # 进而触发大量单条重试（越跑越慢）。所以下限必须够高。
+        chars = sum(len(x["en"]) for x in items)
+        max_tokens = min(8192, max(4096, 1500 + int(chars * 1.5)))
         out = self.chat(self.model,
                         [{"role": "system", "content": self._system},
                          {"role": "user", "content": body}],
@@ -289,6 +332,34 @@ class Client(object):
         return self.system
 
 
+def mask_placeholders(en, phs):
+    """把占位符换成 ASCII 哨兵再送翻，避免模型把 <$PLAYER2|$> 一起译掉。"""
+    masked, mapping = en, []
+    for i, ph in enumerate(sorted(set(phs), key=len, reverse=True)):
+        tok = "@@%d@@" % i
+        if ph in masked:
+            masked = masked.replace(ph, tok)
+            mapping.append((tok, ph))
+    return masked, mapping
+
+
+def unmask_placeholders(zh, mapping):
+    for tok, ph in mapping:
+        zh = zh.replace(tok, ph)
+    return zh
+
+
+def lookup(obj, en):
+    """优先精确匹配；模型偶尔会改动大小写或首尾空白，再做一次归一化匹配。"""
+    if en in obj:
+        return obj[en]
+    t = en.strip().lower()
+    for k, v in obj.items():
+        if k.strip().lower() == t:
+            return v
+    return None
+
+
 def parse_object(text):
     if not text:
         return None
@@ -302,6 +373,13 @@ def parse_object(text):
         obj = json.loads(s[i:j + 1])
     except Exception:
         return None
+    if isinstance(obj, list):
+        # 有些模型会返回 [{"en":...,"zh":...}, ...]，等价转换
+        out = {}
+        for it in obj:
+            if isinstance(it, dict) and "en" in it:
+                out[str(it["en"])] = it.get("zh") or it.get("translation") or ""
+        return out or None
     if not isinstance(obj, dict):
         return None
     return {str(k): v for k, v in obj.items()}
@@ -312,9 +390,9 @@ def parse_object(text):
 def batch_size_for(rows):
     avg = sum(len(r["en"]) for r in rows) / float(len(rows))
     if avg <= 60:
-        return 16
+        return 24
     if avg <= 200:
-        return 10
+        return 8
     return 4
 
 
@@ -435,16 +513,24 @@ class Runner(object):
                          self.stats["skip"], self.stats["review"]), flush=True)
 
     def work_batch(self, batch):
-        items = [{"i": i, "en": r["en"], "ctx": make_ctx(r)}
-                 for i, r in enumerate(batch)]
+        # 键直接用英文原文（批内已去重），模型少返回一条也不会整体错位
+        items = [{"en": r["en"], "ctx": make_ctx(r)} for r in batch]
         out = self.client.translate_batch(items)
+        # 输出被截断/解析失败时先二分重试，比逐条重试便宜得多
+        if (not out or len(out) < len(batch) * 0.6) and len(batch) > 6:
+            mid = len(batch) // 2
+            results = {}
+            results.update(self.work_batch(batch[:mid]))
+            results.update(self.work_batch(batch[mid:]))
+            return results
         results, retry = {}, []
         if out:
-            for i, r in enumerate(batch):
-                if str(i) not in out:
+            for r in batch:
+                raw = lookup(out, r["en"])
+                if raw is None:
                     retry.append(r)
                     continue
-                zh = normalize(out.get(str(i)), r["en"])
+                zh = normalize(raw, r["en"])
                 probs = problems(r["en"], zh, r["placeholders"])
                 if probs:
                     retry.append(r)
@@ -461,9 +547,23 @@ class Runner(object):
 
     def work_single(self, row):
         try:
-            out = self.client.translate_batch(
-                [{"i": 0, "en": row["en"], "ctx": make_ctx(row)}])
-            zh = normalize((out or {}).get("0"), row["en"])
+            phs = row["placeholders"]
+            if phs:
+                masked, mapping = mask_placeholders(row["en"], phs)
+                out = self.client.translate_batch(
+                    [{"en": masked, "ctx": make_ctx(row) + "；@@0@@ 这类标记必须原样保留"}])
+                raw = lookup(out or {}, masked)
+                if raw is None and out and len(out) == 1:
+                    raw = list(out.values())[0]
+                zh = unmask_placeholders(normalize(raw, masked), mapping)
+            else:
+                out = self.client.translate_batch(
+                    [{"en": row["en"], "ctx": make_ctx(row)}])
+                raw = lookup(out or {}, row["en"])
+                # 单条请求只剩一个键时，键名被改动（如半角冒号变全角）也认
+                if raw is None and out and len(out) == 1:
+                    raw = list(out.values())[0]
+                zh = normalize(raw, row["en"])
             probs = problems(row["en"], zh, row["placeholders"])
             if not probs:
                 return zh, None

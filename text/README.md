@@ -73,6 +73,31 @@ GitHub Action 从这里读明文，打包成游戏资产。
 5. `07_icd_candidates.jsonl` 与所有 `status == "review"` 的条**默认不送翻**。
 6. 每批回写后跑一次 `python tools/verify_strings.py --text text`，失败即停止（ArmyMen 的 CI 三段式第三段）。
 
+## 翻译回填
+
+译文由 `tools/translate.py` 调 LLM API 批量回填，只改 `zh` 与 `status`：
+
+```bash
+# 凭据放在仓库外，用文件或环境变量指过来（不要提交）
+export TAK_API_FILE="<本地凭据文件>"
+
+python tools/translate.py --text text --groups 01,02,03,04,05,06 --workers 8
+python tools/translate.py --text text --dry-run          # 只统计分批与跳过项
+python tools/translate.py --text text --retry-review     # 重试失败条目
+```
+
+要点：
+
+* 同一英文**跨组共享译文**，避免 `Archer` 在 UI 表和单位表里译法不同；
+* 批量请求以**英文原文为键**，不用序号 —— 模型少返一条也不会整体错位；
+* `status` 流转：`pending → done`（成功）/ `skip`（快捷键、模板变量、纯符号）/ `review`（多次重试仍不合格）；
+* 占位符、行首 `•`、长度异常、无中文、原样照抄，任一不满足即重试，最终仍失败才落 `review`；
+* 断点续传：缓存 `build_out/cache/translations.json`，中断后重跑会跳过已译条目。
+
+专名由 [`terms.json`](terms.json) 锁定：翻译脚本把整张表塞进 system prompt。
+改完专名表会自动忽略旧缓存（`terms_hash` 不一致），但**已写入 jsonl 的译文不会自动更新**，
+需要人工改或删掉对应 `zh` 后重跑。
+
 ## 命令
 
 ```bash
@@ -87,7 +112,7 @@ python tools/verify_strings.py --text text
 python tools/verify_strings.py --text text --against-game <41BB目录>
 
 # workflow 打包（CI 模式，不需要游戏本体）
-python tools/build_assets.py --text text --out build_out --slot Italian --strict
+python tools/build_assets.py --text text --out build_out --slot Chinese --strict
 ```
 
 打包产物与 TODO 见 [`docs/01-待译表与打包约定.md`](../docs/01-待译表与打包约定.md)。
