@@ -22,8 +22,8 @@
 
 用法
 ----
-    python tools/build_assets.py --text text --out build_out --slot Italian
-    python tools/build_assets.py --text text --out build_out --slot Italian --strict
+    python tools/build_assets.py --text text --out build_out --slot Chinese
+    python tools/build_assets.py --text text --out build_out --slot Chinese --strict
     python tools/build_assets.py --text text --out build_out --game <41BB目录>
 """
 
@@ -37,6 +37,17 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 SKIP_GROUPS = {"07_icd_candidates"}
+
+# HPI 里混着一些开发者自述（readme/note/todo 之类），玩家永远看不到。
+# 用户约定「只汉化游戏内内容」，这些即使被抽取器扫到、甚至已译，也不该落进资产。
+# 注意 readme 常出现在文件名中间（cursors_tex_readme.txt），所以前后都放开。
+DEV_NOTE_RE = re.compile(
+    r"[^/]*(?:readme|read_me|note|todo|changelog|credit)[^/]*\.(?:txt|md|nfo)$", re.I)
+
+
+def is_dev_note(src):
+    """src 形如 'data.hpi::anims/cursors_tex_readme.txt'。"""
+    return bool(DEV_NOTE_RE.search(src.split("::")[-1]))
 
 
 def encode_game(s):
@@ -73,10 +84,16 @@ def collect(by_group):
             continue
         for r in rows:
             stats["total"] += 1
+            if r["status"] == "skip":
+                stats["skipped"] += 1
+                continue
             if r["status"] != "done" or not r["zh"]:
                 stats["untranslated"] += 1
                 continue
             stats["translated"] += 1
+            if all(is_dev_note(t["src"]) for t in r["targets"]):
+                stats["dev_note"] += 1
+                continue
             if group == "06_icd":
                 for t in r["targets"]:
                     m = re.search(r"0x([0-9a-fA-F]+)", t["key"])
@@ -102,6 +119,67 @@ def safe_rel(src):
         hpi = hpi.replace("<root>", "_root").replace(".hpi", "")
         return os.path.join(hpi, *path.split("/"))
     return src.replace("\\", "/")
+
+
+def write_runtime_dict(by_group, out_dir):
+    """生成 DLL 运行时字典：sub_544020 正向、sub_544110 反向共用一份。
+
+    键规则：
+      * 英文原文永远是键（sub_544020 收到的是英文显示串）；
+      * 01 组额外收录 TDF 短语 ID，但同一 ID 对应多种译文时视为歧义，不收录。
+    歧义键记账输出，交给人工/实机确认，绝不随便挑一条。
+    """
+    en_map = {}
+    for group, rows in sorted(by_group.items()):
+        if group in SKIP_GROUPS:
+            continue
+        for r in rows:
+            if r["status"] == "done" and r["zh"]:
+                en_map.setdefault(r["en"], r["zh"])
+
+    id_votes = collections.defaultdict(set)
+    for group, rows in sorted(by_group.items()):
+        if group != "01_ui_tdf":
+            continue
+        for r in rows:
+            if r["status"] != "done" or not r["zh"]:
+                continue
+            for t in r["targets"]:
+                k = (t.get("key") or "").strip()
+                if k:
+                    id_votes[k].add(r["zh"])
+
+    fwd, conflicts = dict(en_map), []
+    for k, vals in sorted(id_votes.items()):
+        if len(vals) == 1:
+            zh = next(iter(vals))
+            if k in fwd and fwd[k] != zh:
+                conflicts.append({"key": k, "keep": fwd[k], "drop": zh,
+                                  "reason": "id_vs_english"})
+                continue
+            fwd[k] = zh
+        else:
+            conflicts.append({"key": k, "variants": sorted(vals)[:5],
+                              "reason": "id_ambiguous"})
+
+    rev = {}
+    for k, zh in fwd.items():
+        rev.setdefault(zh, k)
+    data = {
+        "schema": 1,
+        "encoding": "gbk",
+        "case_insensitive": True,
+        "note": "键为 GBK 字节串；DLL 需同时按原样与小写查表。reverse 供 sub_544110。",
+        "forward": fwd,
+        "reverse": rev,
+        "conflicts": conflicts,
+    }
+    path = os.path.join(out_dir, "dict.json")
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    return len(fwd), len(rev), len(conflicts)
+
 
 
 def write_translate_tables(sources, out_dir, slot):
@@ -218,7 +296,7 @@ def write_update(sources, out_dir, slot, game_dir):
     written = skipped = 0
     for src, patches in sorted(sources.items()):
         kinds = {p["kind"] for p in patches}
-        if "web_text" in kinds:
+        if is_dev_note(src) or "web_text" in kinds:
             skipped += 1
             continue
         text = load_source(game_dir, src)
@@ -238,8 +316,8 @@ def main():
     ap = argparse.ArgumentParser(description="明文待译表 → 资产补丁")
     ap.add_argument("--text", default="text")
     ap.add_argument("--out", default="build_out")
-    ap.add_argument("--slot", default="Italian",
-                    help="写入哪个语言槽，默认 Italian（A1 方案；待 IDA 验证）")
+    ap.add_argument("--slot", default="Chinese",
+                    help="写入哪个语言槽，默认 Chinese（A2 方案，IDA 已验证无语言白名单；German 不可占用）")
     ap.add_argument("--game", help="干净 41BB 目录；给了才生成 build_out/update/")
     ap.add_argument("--strict", action="store_true",
                     help="01-06 组仍有未译条时失败（CI 用）")
@@ -256,6 +334,7 @@ def main():
         f.write("\n")
 
     n_tdf = write_translate_tables(sources, a.out, a.slot)
+    n_dict, n_rev, n_conf = write_runtime_dict(by_group, a.out)
     with open(os.path.join(a.out, "icd_patch.json"), "w", encoding="utf-8",
               newline="\n") as f:
         json.dump({"schema": 1,
@@ -266,7 +345,10 @@ def main():
     result = {"schema": 1, "slot": a.slot,
               "total": stats["total"], "translated": stats["translated"],
               "untranslated": stats["untranslated"],
+              "dev_note": stats["dev_note"],
               "sources": len(sources), "tdf_tables": n_tdf,
+              "dict_entries": n_dict, "dict_reverse": n_rev,
+              "dict_conflicts": n_conf,
               "icd_entries": len(icd), "update_files": 0, "skipped": 0}
     if a.game:
         w, s = write_update(sources, a.out, a.slot, a.game)
@@ -277,11 +359,15 @@ def main():
         json.dump(result, f, ensure_ascii=False, indent=2)
         f.write("\n")
 
-    print("已译 %d / %d 条，未译 %d 条" %
-          (stats["translated"], stats["total"], stats["untranslated"]))
+    print("已译 %d / %d 条，未译 %d 条，按规则跳过 %d 条" %
+          (stats["translated"], stats["total"], stats["untranslated"],
+           stats["skipped"]))
+    if stats["dev_note"]:
+        print("      其中 %d 条属开发者自述（readme/note），已计入已译但不进资产"
+              % stats["dev_note"])
     print("产出: patches.json (%d 个来源), translate/*.tdf (%d 份), "
-          "icd_patch.json (%d 条), summary.json"
-          % (len(sources), n_tdf, len(icd)))
+          "dict.json (%d 正 / %d 反 / %d 冲突), icd_patch.json (%d 条), summary.json"
+          % (len(sources), n_tdf, n_dict, n_rev, n_conf, len(icd)))
     if a.game:
         print("      build_out/update/ 改写文件 %d 份，跳过 %d 份（HTML 或未找到）"
               % (result["update_files"], result["skipped"]))
