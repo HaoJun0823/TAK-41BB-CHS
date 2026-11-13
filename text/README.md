@@ -122,15 +122,21 @@ python tools/build_assets.py --text text --out build_out --slot Chinese --strict
 
 | 层 | 真相源 | 内容 | 重放命令 |
 |---|---|---|---|
-| A 档 | `fixes.json` | 界面短词的定稿译法 + 定点替换 | `python tools/apply_term_fixes.py --text text --write` |
+| A 档 | `fixes.json` | 界面串定稿 + **353 条按英文名生效的覆盖**（单位名、地图名）+ 39 条定点替换 | `python tools/apply_term_fixes.py --text text --write` |
 | B 档 | `lore_terms.json` | 专名与术语锁定（`canonical` 英文→定稿，`variants` 旧译名→定稿） | `python tools/apply_lore_terms.py --text text --write` |
-| C 档 | `polish.json` | **518 条长文本逐段重写**（剧情、百科、帮助长句），`id -> 定稿 zh` | `python tools/apply_polish.py --text text --write` |
-| 排版 | —（就地改写） | 列表符号、半/全角标点、`"…"`→`「…」`、引号两侧空格 | `python tools/normalize_punct.py --text text --write` |
+| C 档 | `polish.json` | **837 条整段定稿**（剧情、百科、帮助长句、288 条任务简报、界面提示），`id -> 定稿 zh` | `python tools/apply_polish.py --text text --write` |
+| 排版 | —（就地改写） | 列表符号、半/全角标点、`"…"`→`「…」`、引号两侧空格、`您`→`你` | `python tools/normalize_punct.py --text text --write` |
 
 **顺序固定为 B → A → C → 排版**：先统一专名，再套短词定稿，接着用整段定稿覆盖，
 最后跑一遍标点归一——因为 `polish.json` 里存的是人手原文，可能带弯引号或半角标点，
 必须由最后一步收口。`apply_polish.py` 每次套用前会校验 `id` 存在、
 `<$模板$>` 与 `%s/%d` 原样保留，任一不符就整体中止。
+
+单位名不按 id 定稿，而按**英文原名**写进 `fixes.json` 的 `overrides`：同一串
+`Stone Troll` 会同时出现在 01 词条表和 02 单位表里，按 id 改只能改一半。
+`tools/fix_unit_names.py` 负责把「石 / 冰封 / 受损 / 被毁 / 残破 + 基础名」这类
+机械变体重算一遍（基础名一改，260 多个变体自动跟上），
+`tools/audit_terms.py` 则反向查「原文提到某单位、译文却写了别的名字」。
 
 C 档的体例是「意译优先，音译兜底」：语序按中文重排，括号补充只在必要时留，
 专名写法一律以 `lore_terms.json` 为准。质量门 `check_quality.py` 另外查

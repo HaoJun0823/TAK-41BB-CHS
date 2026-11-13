@@ -285,6 +285,59 @@ def check_tdf_chars(rows):
     return bad
 
 
+# 英文逐词搬过来最典型的几种搭配错误。不是文风洁癖：
+# 「沉没所有运输船」「摧毁部队」「马车必须存活」这类句子单看能猜到意思，
+# 连起来读就是机翻腔，玩家会以为漏翻了。
+COLLO = [
+    (r"沉没(所有|全部|任何)", "「沉没」不及物，击沉用「击沉」"),
+    (r"摧毁[^，。；]{0,8}(部队|守军|士兵|巡逻队|大军|平民)", "「摧毁」不接人，用「歼灭」"),
+    (r"装载[^，。；]{0,4}(人|部队|俘虏|士兵|平民|囚犯)", "人员用「送上/押上」，不用「装载」"),
+    (r"(必须|务必|需|要|得)[^，。；]{0,6}存活", "「存活」是 survive 的硬译"),
+    (r"保持[^，。；]{0,8}存活", "「保持…存活」是 must survive 的硬译"),
+    (r"所有[^，。；]{0,8}的(玩家|用户|人)", "all ... of 的直译"),
+    (r"无法被[^，。；]{0,6}", "「无法被…」被动冗余"),
+    (r"进行(一[次个步]|了)?(操作|处理|检查|设置|选择|确认)", "「进行+名词」是 do 的硬译"),
+]
+
+
+def check_collocation(rows):
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        for pat, why in COLLO:
+            if re.search(pat, r["zh"]):
+                bad.append((r, why))
+                break
+    return bad
+
+
+def check_polite(rows):
+    """全篇统一用「你」，残留「您」说明标点层没跑或有人手改漏了。"""
+    bad = []
+    for r in rows:
+        if r["status"] == "done" and r["zh"] and "您" in r["zh"]:
+            bad.append((r, "残留「您」"))
+    return bad
+
+
+def check_unit_names(rows):
+    """石/冰封/受损/被毁 这类状态变体必须由基础名机械推出来，不能各译各的。"""
+    try:
+        import fix_unit_names as U
+    except ImportError:
+        return []
+    base = U.build_base(rows)
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        exp = U.expected(r["en"], base)
+        if exp is not None and exp != r["zh"]:
+            bad.append((r, "应为「%s」" % exp))
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description="译文质量体检")
     ap.add_argument("--text", default=os.path.join(ROOT, "text"))
@@ -315,6 +368,9 @@ def main():
                   ("旧译名", check_variants(rows, variants, canon_zh)),
                   ("重复括注", check_duplicate_paren(rows)),
                   ("超长句", check_long_sentence(rows)),
+                  ("搭配", check_collocation(rows)),
+                  ("人称", check_polite(rows)),
+                  ("单位名", check_unit_names(rows) if fn.startswith("02") else []),
                   ("TDF字符", check_tdf_chars(rows))]
         n = sum(len(x[1]) for x in groups)
         total_bad += n

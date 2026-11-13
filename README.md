@@ -54,7 +54,9 @@ hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文
 | `tools/extract_strings.py` | 从干净 41BB 抽取全部待译英文，生成 `text/*.jsonl` |
 | `tools/verify_strings.py` | 独立校验：格式、唯一性、占位符、编码指纹、与基线一致 |
 | `tools/translate.py` | 用 LLM API 批量回填 `zh`/`status`：跨组去重、占位符强校验、断点续传、失败降级 |
-| `tools/check_quality.py` | 机器体检：专名锁定、英文残留、数字丢失（`--strict` 供 CI 门禁） |
+| `tools/check_quality.py` | 机器体检：专名锁定、英文残留、数字丢失、搭配硬伤、人称统一、单位名词缀一致（`--strict` 供 CI 门禁） |
+| `tools/fix_unit_names.py` | 单位名归一：按「石 / 冰封 / 受损 / 被毁 + 基础名」机械推导 260 余个状态变体，按英文名写进 `fixes.json` |
+| `tools/audit_terms.py` | 单位名漂移审计：原文提到某单位、译文却用了别的叫法（`Drake Carcass` 曾译成「龙虾尸体」） |
 | `tools/unify_translations.py` | 跨组译名统一：同一英文只允许一种译法 |
 | `tools/retranslate_suspects.py` | 可疑条目单条重译（JSON 外壳污染 / 专名错 / 英文残留） |
 | `tools/clean_text.py` | 清洗 GBK 编不了的字符，避免单字节嵌进双字节流造成错位 |
@@ -74,6 +76,14 @@ python tools/hpi_v2.py verify "$GAME"
 python tools/extract_strings.py --game "$GAME" --out text
 python tools/verify_strings.py --text text --against-game "$GAME"
 python tools/check_quality.py --text text --strict
+
+# 重跑抽取后恢复人工成果：顺序固定 B → A → C → 排版（详见 text/README.md）
+python tools/apply_lore_terms.py --text text --write
+python tools/fix_unit_names.py  --text text --write     # 单位名词缀归一（按英文名写入 fixes.json）
+python tools/apply_term_fixes.py --text text --write
+python tools/apply_polish.py    --text text --write
+python tools/normalize_punct.py --text text --write
+python tools/audit_terms.py     --text text             # 单位名漂移审计，应为 0
 python tools/build_assets.py --text text --out build_out --slot Chinese --strict
 python tools/verify_assets.py --out build_out --strict
 
