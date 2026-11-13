@@ -19,8 +19,8 @@
     },
     {
       "file": "03_missions.jsonl",
-      "entries": 298,
-      "desc": "任务/地图名称与简报（P2）"
+      "entries": 397,
+      "desc": "任务/地图名称与简报（P2；含 extract_missing 补抽的 26 份任务简报、23 份地图信息）"
     },
     {
       "file": "04_gui.jsonl",

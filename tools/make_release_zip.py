@@ -29,7 +29,8 @@ FORBIDDEN = {".git", ".github", "src", "tools", "text", "docs", "inventory",
              "payload", "packaging", "build_out", "build_dll", "_probe",
              "TAUtil", "test"}
 
-DEFAULT_REQUIRE = "version.dll,chs.dict,INSTALL.txt,LICENSE,NOTICE.txt"
+DEFAULT_REQUIRE = ("version.dll,chs.dict,INSTALL.txt,LICENSE,NOTICE,"
+                   "LICENSES/Apache-2.0.txt")
 
 
 def collect(stage):

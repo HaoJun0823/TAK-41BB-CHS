@@ -16,7 +16,7 @@
 | 全量待译表（明文、可 diff、LLM 可回填） | **完成**，8409 条 / 15355 个写回位置 |
 | 翻译 | **完成**，4297 译 / 346 跳过 / 0 待确认（07 组 3766 条候选池待 IDA 确认） |
 | DLL 方案（IDA 定位语言槽 / 字库 / hook 点） | **完成**，见 `docs/02-IDA与DLL方案.md` |
-| 资产打包（明文 → 补丁，CI 三段式） | **完成**，见 `.github/workflows/build-assets.yml` |
+| 资产打包（明文 → 补丁，门禁与构建同一工作流） | **完成** |
 | DLL 实现（文本 hook + 代理注入） | **完成**，见 `docs/03-DLL构建与验证.md` |
 | 中文字库层（运行时纹理帧） | **完成并实机验证**，见 [`docs/04-中文字库层.md`](docs/04-中文字库层.md) |
 | 4.1BB 光盘校验（内存短路，磁盘不动） | **完成并实机验证**，见 [`docs/05-版本差异与光盘校验.md`](docs/05-版本差异与光盘校验.md) |
@@ -24,8 +24,8 @@
 | 覆盖清单：动了原版哪些档案、多少内容 | **完成**，见 [`docs/07-游戏文件与文本覆盖清单.md`](docs/07-游戏文件与文本覆盖清单.md) |
 | 内嵌网页（05）落地 | **已实现**（117 页 1097 段，重定向到 `chs_web/`），入口被停运的 Boneyards 挡住，见 [`docs/08-内嵌网页译文层.md`](docs/08-内嵌网页译文层.md) |
 | 任务/GUI/单位资源落地（02/03/04） | **已实现**（1056 个文件 → `chs_res/`，hook 引擎的文件打开函数），见 [`docs/09-资源读取接管.md`](docs/09-资源读取接管.md) |
-| CI 编译 DLL（`build-dll.yml`，带导出表门禁） | **完成** |
-| 发布（`release.yml`：编译 → 组装 zip → Release） | **完成**，推 `v*` 标签或手动触发 |
+| CI 编译 DLL（msvc-wine v141，PE / 导出表门禁） | **完成**，见 `.github/workflows/build-release.yml` |
+| 发布（构建 → 组装 zip → 自动 Release） | **完成**，推 `master` / `main` 即自动发版 |
 | 联机实测 | 待做 |
 
 **IDA 核心结论**：引擎自带完整本地化链路 —— `WinMain` 读 `Language` →
@@ -67,11 +67,13 @@ hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文
 | `tools/check_tdf.py` | 按引擎真实实现（`sub_5429D0`）校验 TDF 语法，部署前拦截解析错误 |
 | `tools/pack_payload.py` | 把 `build_out/update` 的资源打成 `payload/chs_res.zip` 入库（CI 无原版游戏，资源层必须预打） |
 | `tools/verify_payload.py` | 独立复核 payload：解压重算摘要，并检查资源层是否已落后于 `text/` |
-| `tools/stage_release.py` | 组装 `stage/`：DLL + 字典 + 资源层 + 说明 + 许可 |
+| `tools/stage_release.py` | 组装 `stage/`：DLL + 字典 + 资源层 + 说明 + 许可（含 `LICENSES/` 全文） |
 | `tools/make_release_zip.py` | 打发布 zip：路径干净、固定时间戳、拦源码混入 |
+| `tools/build_dll.sh` | 用 msvc-wine 的 `cl` / `link` 编译 `version.dll`（与 `build_version.bat` 同一组开关） |
+| `tools/check_dll.py` | 发布门禁：PE32/i386、导出表与 `version.def` 逐条对齐、无转发 / 自导入、linker 必须是 14.16 |
 | `inventory/` | `hpi_files.csv`（9037 条资源记录）、`non_translatable.csv`（921 项需人工制作资产） |
 | `TAUtil/` | git submodule，MIT，© 2014 ArmouredFish —— 提供 HPI/GAF/TDF 结构定义 |
-| `LICENSES/` | 第三方许可全文 |
+| `LICENSES/` | 基础许可 Apache-2.0 与第三方许可全文 |
 
 ## 命令速查
 
@@ -99,41 +101,54 @@ python tools/check_tdf.py build_out/update          # TDF 语法预检（deploy 
 python tools/deploy.py --game "$GAME" --apply --res
 ```
 
-CI 三段式（`.github/workflows/build-assets.yml`）：
-`verify-text`（结构 + 质量 + GBK 安全）→ `package`（打包 + 独立复核）→
-`recheck`（在干净容器里只下载 artifact 再验一次）。
+CI（`.github/workflows/build-release.yml`）：
+文本门禁（结构 + 质量 + GBK 安全）→ 资产（打包 + 独立复核 + payload 校验）→
+msvc-wine 编译 DLL（PE / 导出表门禁）→ 组装 zip。push 到 `master` / `main` /
+`rebuild` 时在**同一个 run** 里打 tag 并发 Release；PR 只构建不发版。
 
 ## 发布
 
-推一个 `v*` 标签就会走 `.github/workflows/release.yml`：编译 DLL → 校验导出表 →
-校验 payload → 生成字典 → 组装 → 打 zip → 建 Release。也可以在 Actions 页面手动
-触发并填版本号。
+发版是自动的：push 到 `master` / `main` / `rebuild`，工作流跑完门禁与构建后，
+在同一个 run 里创建 `汉化补丁-YYYY-MM-DD-HH-MM-SS` 标签并发布 Release。
+也可以在 Actions 页面手动触发，勾 `release` 立即发一版。
+
+版本号写在仓库根的 `VERSION`（形如 `v0.1.0`），zip 名带日期时间：
+`TAK-41BB-CHS-v0.1.0-YYYYMMDDHHMMSS.zip`。
+
+DLL 由 msvc-wine 在 ubuntu 上以 **MSVC 14.16 (v141) + Win10 SDK 26100** 编译：
+windows 托管镜像不带 v141，而工程要 `v141_xp` 才能保住老系统兼容。
+`tools/check_dll.py` 会验 PE 头的 linker 版本必须是 14.16，工具集回退直接失败。
 
 ```bash
-# 改了译文、要发新版本时的完整顺序
+# 改了译文、要发新版时的完整顺序
 python tools/build_assets.py --text text --out build_out --slot Chinese --game "$GAME"
 python tools/pack_payload.py                 # 重打资源层，否则 payload 落后于 text/
 python tools/verify_payload.py --strict      # 发布前必须绿
 
-git tag v0.1.1 && git push origin v0.1.1
+git add -A && git commit -m "..." && git push   # push 即发版
 ```
 
-发布包只含玩家要用的东西（`version.dll`、`chs.dict`、`chs_res/`、说明、许可），
-不含源码。本地想先看包长什么样：
+发布包只含玩家要用的东西（`version.dll`、`chs.dict`、`chs_res/`、`INSTALL.txt`、
+`LICENSE`、`LICENSES/`、`NOTICE`），不含源码。本地想先看包长什么样：
 
 ```bash
 python tools/stage_release.py --version v0.1.0 --dll build_dll/version.dll
-python tools/make_release_zip.py --stage stage --out dist/TAK-41BB-CHS-v0.1.0.zip
+python tools/make_release_zip.py --stage stage --out dist/TAK-41BB-CHS-v0.1.0-test.zip
 ```
 
 `payload/chs_res.zip` 是入库的构建产物（1130 个文件，0.7 MB）。之所以不现场生成：
 `chs_res` 由原版 HPI 改写而来，runner 上没有原版游戏（版权 + 体积）。
 
-范式参考：`G:/Projects/MajestyIIExtend`（明文词典 + fontgen + ASI）、
-`G:/Projects/ArmyMenCHS`（不改 exe、`update/` 覆盖层、`LICENSES/`、CI 三段式）。
+范式参考：`G:/Projects/MajestyIIExtend`（明文词典 + fontgen + ASI + msvc-wine CI）、
+`G:/Projects/ArmyMenCHS`（不改 exe、`update/` 覆盖层、`LICENSES/`）。
 
 ## 许可
 
-代码与工具：MIT，见 `LICENSE`。
-译文、游戏内容权属与第三方组件：见 `packaging/NOTICE.txt`，第三方许可全文在 `LICENSES/`。
+原创内容（代码、译文、本地化数据、构建与打包工具、文档）采用
+**HaoJun0823 非商业源码可得许可 1.0（HJNCSA-1.0）**：以 Apache License 2.0 为基础
+并附加非商业条件，**不是**开源许可，也**不是** Apache-2.0。允许非商业使用、修改与
+再分发；再分发须随附完整对应源码与改动说明，并保留署名。
+
+全文见 `LICENSE`，基础许可逐字全文见 `LICENSES/Apache-2.0.txt`。
+第三方组件与游戏内容权属见 `packaging/NOTICE.txt`。
 游戏素材版权归原权利人所有，本仓库不主张任何权利，也不分发游戏原始数据。

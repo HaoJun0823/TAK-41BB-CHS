@@ -6,8 +6,11 @@ text/*.md       text eol=lf
 tools/*.py      text eol=lf
 docs/*.md       text eol=lf
 *.md            text eol=lf
+.gitattributes  text eol=lf
 .gitignore      text eol=lf
 LICENSE         text eol=lf
+LICENSES/*.txt  text eol=lf
+VERSION         text eol=lf
 packaging/*.txt text eol=lf
 payload/*.json  text eol=lf
 

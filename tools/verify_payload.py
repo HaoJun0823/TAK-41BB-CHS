@@ -6,7 +6,7 @@
     逻辑。这里从头读 zip、逐条重算摘要，不复用打包时的任何中间状态。
 
 CI 里的位置
-    release.yml 的 package 阶段，解压 payload 之前先跑。失败只有两种可能：
+    build-release.yml 的构建阶段，解压 payload 之前先跑。失败只有两种可能：
       * 改了 text/ 却没重跑 pack_payload → 发出去的包「资源层旧、字典新」；
       * zip 被截断或篡改 → 玩家装上去缺文件。
     两种都不该发出去。

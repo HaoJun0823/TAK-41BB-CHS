@@ -1,0 +1,507 @@
+name: build-release
+
+# ============================================================================
+# TAK 41BB 简体中文补丁：构建 + 校验 + 自动发 Release
+# ----------------------------------------------------------------------------
+# 产物（一个 zip，解压到游戏根目录即用）：
+#   TAK-41BB-CHS-{版本}-{日期}-{时间}.zip
+#
+# 触发：
+#   push(master/main/rebuild) —— 文本门禁 → 资产 → 编译 DLL → 组装 zip →
+#                              在同一 run 内按日期-时间打 tag 并发 Release。
+#   pull_request              —— 只构建与校验（门禁，不发布）。
+#   workflow_dispatch         —— 手动；可勾选 release 立即发一版。
+#
+# 为什么用 msvc-wine（ubuntu-latest）而不是 windows-latest
+#   windows-2022/2025 镜像不带 v141 (MSVC 14.16)，工程写 v141_xp 是为了
+#   保住 Windows 98/XP 兼容：新版工具集编出的 DLL 会依赖新版 CRT，老系统
+#   上直接加载失败。GitHub 托管的 windows 镜像又装不回 v141（实测回退 v143
+#   后 MSBuild 直接失败）。做法与 MajestyIIExtend / SR_GAME_CHINESE 同款：
+#     · msvc-wine 用与 VS 安装器同一份官方 manifest 从微软 CDN 拉包，
+#       wine 里跑真 cl.exe / link.exe；
+#     · VC 14.16 走 VS2017 channel（--major 15），SDK 26100 走 VS2022
+#       channel，两段下载后合并进同一 prefix；
+#     · install.sh 生成 bin/x86/{cl,link} wrapper（Hostx64 宿主，64 位进程
+#       编 32 位目标），INCLUDE/LIB 由 wrapper 设置。
+#   ★ 工具链必须锁 14.16：check_dll.py 会读 PE 头的 linker 版本，不等于
+#     14.16 直接判失败 —— 防止 vsdownload 参数被上游改动后静默回退。
+#
+# 为什么资源层是「预打的 payload」而不是现场生成
+#   chs_res 由原版 HPI 里的文件改写而来，runner 上没有原版游戏（版权 + 体积）。
+#   所以本机先跑 tools/pack_payload.py 打成 payload/chs_res.zip 入库，
+#   CI 只解压。若 text/ 改了却没重打 payload，verify_payload --strict 会失败，
+#   避免发出「资源层旧、字典新」的混合体。
+#
+# 为什么 zip 用 Python 打而不是 zip 命令
+#   见 tools/make_release_zip.py 开头：`.` 开头的路径在不同发行版上不一致，
+#   玩家会遇到「解压后没有 version.dll」。
+# ============================================================================
+
+on:
+  push:
+    branches: [master, main, rebuild]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'inventory/**'
+      - '.workbuddy/**'
+  pull_request:
+    branches: [master, main, rebuild]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'inventory/**'
+      - '.workbuddy/**'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: '构建后立即发布 Release（打日期-时间 tag）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# 同一分支/PR 的新推送取消旧的进行中构建，省 runner
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # 本仓库所有 .py 都与中文交互；CI 上强制 UTF-8，避免 UnicodeEncodeError
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: 'utf-8'
+  # msvc-wine 安装目录（VC 14.16 + 合并进来的 SDK 26100）
+  MSVC_WINE_PREFIX: ${{ github.workspace }}/.msvc
+  # SDK 26100 的独立下载目录（下载后 mv 合并进 MSVC_WINE_PREFIX）
+  MSVC_SDK_DIR: ${{ github.workspace }}/.msvc-sdk
+  # msvc-wine 上游 checkout 的 ref。升级时改这里 —— cache key 含它。
+  MSVCWINE_REF: master
+
+jobs:
+  build:
+    name: 构建发布包（ubuntu-latest + msvc-wine MSVC v141 x86）
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      stamp: ${{ steps.meta.outputs.stamp }}
+      version: ${{ steps.meta.outputs.version }}
+      zipname: ${{ steps.meta.outputs.zipname }}
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v7.0.1
+        with:
+          submodules: false   # TAUtil 只是格式参考，编译用不到
+
+      - name: 配置 Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+
+      # ── 文本层门禁：先跑，失败就不必下载 4GB 工具链 ────────────────
+      # 结构：id 唯一、字段齐全、status 合法、done 的译文占位符守恒。
+      - name: 校验表结构与占位符
+        run: python tools/verify_strings.py --text text
+
+      # 质量体检：专名锁定、英文残留、数字丢失、搭配硬伤、人称、单位名词缀。
+      # --strict 让 warning 也算失败，否则「有一条专名没锁住」会被静默放过。
+      - name: 质量体检（专名 / 英文残留 / 数字 / 术语一致）
+        run: python tools/check_quality.py --text text --strict
+
+      # GBK 编不了的字符会被打包器写成单字节，插进双字节流里让整张表报废。
+      # 这里只是预演（不带 --write），有残留就让 CI 红。
+      - name: 检查 GBK 不安全字符（只报告，不改文件）
+        run: |
+          set -euo pipefail
+          python tools/clean_text.py --text text | tee /tmp/clean.log
+          if ! grep -q '没有需要清洗的字符' /tmp/clean.log; then
+            echo "::error::译文里仍有 GBK 编不了的字符，请本地跑 tools/clean_text.py --write 后提交"
+            exit 1
+          fi
+
+      # --strict：01-06 组还有一条未译就失败。不跑 --game（runner 上没有游戏），
+      # 只产 chs.dict / patches.json 这类纯文本资产。
+      - name: 生成运行时字典
+        run: python tools/build_assets.py --text text --out build_out --slot Chinese --strict
+
+      # 第二双眼睛：不复用 build_assets 的任何函数，重算占位符/TDF/字典一致性。
+      - name: 独立复核资产
+        run: python tools/verify_assets.py --out build_out --strict
+
+      # 资源层必须与当前 text/ 同源，否则发出去的是「资源层旧、字典新」。
+      - name: 校验资源层 payload
+        run: python tools/verify_payload.py --strict
+
+      # ── 工具链 ─────────────────────────────────────────────────────
+      # ★ 必须完整 checkout msvc-wine（不能只下 vsdownload.py）：
+      #   install.sh 要用仓库里的 lowercase / fixinclude（大小写修复，Linux
+      #   大小写敏感文件系统必需）、wrappers/（cl/link 包装脚本）、
+      #   msvctricks.cpp（自举编译一次 cl 实测可用性）。
+      - name: 检出 msvc-wine
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: mstorsjo/msvc-wine
+          ref: ${{ env.MSVCWINE_REF }}
+          path: .msvc-wine
+
+      # wine64     : 运行真 cl.exe/link.exe（Hostx64 宿主，64 位进程）
+      # msitools   : msiextract，解 VS 组件与 WinSDK 的 .msi
+      # winbind    : cl 用 /Zi 时 mspdbsrv 通信需要；本构建无 /Zi，纯保险
+      - name: 安装 wine / msitools 等依赖
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y wine64 msitools ca-certificates winbind
+          wine --version
+
+      # ── 工具链缓存（VC 14.16 + SDK 26100 合并后约 4GB）──────────────
+      - name: 还原 MSVC 工具链缓存
+        uses: actions/cache@v6.1.0
+        with:
+          path: .msvc
+          key: tak-msvcwine-v141-x86-sdk26100-${{ env.MSVCWINE_REF }}-v1
+
+      # ── 下载工具链（缓存未命中时）：两段 vsdownload + 合并 ──────────
+      #   ★ 段 1（VC 14.16）：--major 15 是**关键** —— Microsoft.VisualStudio.
+      #     Component.VC.Tools.14.16（v141）只存在于 VS2017 manifest；VS2022+
+      #     清单里 v141 兼容组件 ID 不同，vsdownload 找不到会**静默回退最新
+      #     工具集**，故必须锁 15。--with-sdk=no：SDK 走段 2。
+      #   ★★ --architecture **x86 x64**（两者都要）—— 不是只 x86：
+      #     x86 cl.exe（Hostx64/x86）启动时按 PATH 找 mspdbcore.dll，而 VC
+      #     14.16 里 mspdbcore.dll 只存在于 Hostx64/x64 目录。只拉 x86 会让
+      #     wine 下的 cl 报 "fatal error C1356: unable to find mspdbcore.dll"。
+      #   ★ 段 2（SDK 26100）：VS2022 manifest 里按 --sdk-version 10.0.26100
+      #     精确选中；--with-default=no 防止把整个 VCTools workload 拉下来。
+      #   ★ 合并：mv .msvc-sdk/Windows\ Kits -> .msvc/（VC 段没装 SDK，该位置
+      #     是空的）。install.sh 探测 SDKVER 时 26100 是唯一版本，自动选中。
+      - name: 下载并装配 MSVC v141 + Win10 SDK 26100（缓存未命中时）
+        run: |
+          set -euo pipefail
+          if [ -x "${MSVC_WINE_PREFIX}/bin/x86/cl" ] && [ -d "${MSVC_WINE_PREFIX}/kits/10/include/10.0.26100.0" ]; then
+            echo "工具链缓存命中（VC 14.16 + SDK 26100），跳过下载。"
+          else
+            echo "==> [1/3] 下载 VC 14.16 (v141, VS2017 channel, x86+x64)"
+            python3 .msvc-wine/vsdownload.py \
+              --accept-license --major 15 --msvc-version 15.9 \
+              --architecture x86 x64 --host-arch x64 \
+              --with-sdk=no --with-atl=no --with-asan=no --with-dia=no \
+              --with-msbuild=no --with-devcmd=no \
+              --dest "${MSVC_WINE_PREFIX}"
+
+            echo "==> [2/3] 下载 Win10 SDK 26100 (VS2022 channel)"
+            python3 .msvc-wine/vsdownload.py \
+              --accept-license --major 17 \
+              --sdk-version 10.0.26100 \
+              --with-default=no \
+              --architecture x86 --host-arch x64 \
+              --dest "${MSVC_SDK_DIR}"
+
+            echo "==> [3/3] 合并 SDK 26100 进 MSVC prefix"
+            if [ -d "${MSVC_WINE_PREFIX}/Windows Kits" ]; then
+              echo "!! .msvc/Windows Kits 已存在，意外状态" >&2; exit 1
+            fi
+            mv "${MSVC_SDK_DIR}/Windows Kits" "${MSVC_WINE_PREFIX}/"
+          fi
+          rm -rf "${MSVC_SDK_DIR}"
+
+      # ── install.sh：大小写修复 + 包装脚本生成（幂等，永远跑）────────
+      - name: install.sh（生成包装脚本 / 大小写修复）
+        run: |
+          set -euo pipefail
+          sh .msvc-wine/install.sh "${MSVC_WINE_PREFIX}"
+
+      # ── 编译器验证（门禁 + 诊断）──────────────────────────────────
+      #   bin/x86 的 wrapper 内部是 Hostx64/x86 cl.exe，banner 形如
+      #   "... Version 19.16.x for x86"。**必须**看到 19.16 才放行 ——
+      #   防止 vsdownload 参数被上游改动后静默回退新版工具集。
+      - name: 验证编译器为 MSVC v141 x86（诊断 + 门禁）
+        run: |
+          set -euo pipefail
+          export PATH="${MSVC_WINE_PREFIX}/bin/x86:$PATH"
+          echo "── mspdbcore.dll 就位检查（C1356 根因诊断）──"
+          find "${MSVC_WINE_PREFIX}/vc/tools/msvc" -name mspdbcore.dll 2>/dev/null || true
+          echo "── cl banner ──"
+          banner="$(cl 2>&1 || true)"
+          echo "$banner" | head -2
+          if ! echo "$banner" | grep -q "19\.16"; then
+            echo "!! cl 不是 MSVC 14.16 (v141) —— vsdownload 可能回退了版本" >&2
+            exit 1
+          fi
+          echo "── Win SDK 版本（应只有 10.0.26100.0）──"
+          ls "${MSVC_WINE_PREFIX}/kits/10/include/"
+          echo "── 磁盘余量 ──"
+          df -h .
+
+      - name: 编译 version.dll
+        run: bash tools/build_dll.sh
+
+      # 结构门禁：PE32/i386、导出表与 version.def 逐条对齐、无转发、无自导入，
+      # 且 PE 头的 linker 版本必须是 14.16。
+      - name: 校验 DLL（架构 / 导出表 / 工具集）
+        run: python tools/check_dll.py --dll build_dll/version.dll
+
+      # 版本与时间戳只算一次：zip 名、INSTALL 页眉、Release tag 共用同一个值。
+      - name: 计算版本与时间戳
+        id: meta
+        run: |
+          set -euo pipefail
+          version="$(tr -d '[:space:]' < VERSION)"
+          case "$version" in
+            v[0-9]*) ;;
+            *) echo "::error::VERSION 里的版本号必须形如 v0.1.0，当前是「$version」"; exit 1 ;;
+          esac
+          stamp="$(TZ=Asia/Shanghai date +%Y-%m-%d-%H-%M-%S)"
+          zipstamp="$(printf '%s' "$stamp" | tr -d '-')"
+          zipname="TAK-41BB-CHS-${version}-${zipstamp}.zip"
+          {
+            echo "version=$version"
+            echo "stamp=$stamp"
+            echo "zipname=$zipname"
+          } >> "$GITHUB_OUTPUT"
+          echo "版本 $version，时间戳 $stamp，产物 $zipname"
+
+      - name: 组装 stage
+        run: >-
+          python tools/stage_release.py
+          --version "${{ steps.meta.outputs.version }}"
+          --dll build_dll/version.dll
+          --build-out build_out
+
+      - name: 打 zip
+        run: >-
+          python tools/make_release_zip.py
+          --stage stage
+          --out "dist/${{ steps.meta.outputs.zipname }}"
+
+      - name: 抽查包结构
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import glob, zipfile
+          p = glob.glob('dist/*.zip')[0]
+          with zipfile.ZipFile(p) as z:
+              names = z.namelist()
+          print('%s：%d 条' % (p, len(names)))
+          for n in names[:6]:
+              print('   ', n)
+          print('顶层：', '、'.join(sorted({n.split('/')[0] for n in names})))
+          PY
+
+      - name: 写作业摘要
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## 构建结果"
+            echo
+            if [ -f "dist/${{ steps.meta.outputs.zipname }}" ]; then
+              ls -lh "dist/${{ steps.meta.outputs.zipname }}"
+              echo
+              echo '```'
+              sha256sum "dist/${{ steps.meta.outputs.zipname }}"
+              echo '```'
+            else
+              echo "没有产出 zip —— 构建阶段失败。"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 上传发布包
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: tak-release
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  # ── 发布：push master/main/rebuild 时自动打日期 tag + 发 Release ────────
+  # 不再依赖「tag push 重触发 workflow」（GITHUB_TOKEN 推的 tag 不触发
+  # on:push，会静默失败），改为在同一 run 内由 gh CLI 直接发版。
+  publish:
+    name: 发布 Release
+    if: |
+      needs.build.result == 'success' && (
+        (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rebuild')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.release)
+      )
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      # ★ fetch-depth: 0 —— release notes 要算「自上次 Release 起的提交」，
+      #   默认 depth=1 会取不到历史，git log 范围为空。
+      - name: 检出仓库（git tag / 提交记录需要）
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: 下载发布 zip
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: tak-release
+          path: dist
+
+      - name: 计算 tag（汉化补丁- 前缀，上海时区）
+        id: tag
+        run: |
+          set -euo pipefail
+          tag="汉化补丁-${{ needs.build.outputs.stamp }}"
+          # 极小概率同秒重复发布：若 tag 已存在则追加运行号
+          if gh api "repos/${{ github.repository }}/git/ref/tags/$tag" >/dev/null 2>&1; then
+            tag="${tag}-${GITHUB_RUN_NUMBER}"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "将使用 tag: $tag"
+
+      # ── 生成 Release 说明：三段结构（提交记录 + 下载表 + 必读说明）─────
+      - name: 生成 Release 说明
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.tag.outputs.tag }}"
+          slug="${{ github.repository }}"
+          repo_url="https://github.com/$slug"
+
+          # 附件名即本地 zip 名（glob 上传原样保留）。
+          # ★ 用 find 而非硬编码 dist/<artifact>/：download-artifact 大版本之间
+          #   落盘层级会变，find 对两种布局都成立。
+          zip_path="$(find dist -name 'TAK-41BB-CHS-*.zip' -print -quit 2>/dev/null || true)"
+          if [ -z "$zip_path" ]; then
+            echo "!! 未找到发布 zip；dist 实际内容：" >&2
+            ls -R dist >&2 || true
+            exit 1
+          fi
+          zip_name="$(basename "$zip_path")"
+
+          # 提交范围：自上次 Release 的 commit 起。
+          # ★ 不用 git log <上次tag>..HEAD：checkout 默认不拉 tag 对象，会报 unknown revision。
+          latest="$(gh api "repos/$slug/releases/latest" 2>/dev/null || true)"
+          prev_tag="$(printf '%s' "$latest" | jq -r '.tag_name // empty' 2>/dev/null || true)"
+          prev_sha="$(printf '%s' "$latest" | jq -r '.commit.sha // empty' 2>/dev/null || true)"
+          if [ -z "$prev_sha" ] && [ -n "$prev_tag" ]; then
+            prev_sha="$(gh api "repos/$slug/git/refs/tags/$prev_tag" --jq '.object.sha // empty' 2>/dev/null || true)"
+            if [ "$(git cat-file -t "$prev_sha" 2>/dev/null || true)" = "tag" ]; then
+              prev_sha="$(gh api "repos/$slug/git/refs/tags/$prev_tag" --jq '.object.object.sha // empty' 2>/dev/null || true)"
+            fi
+          fi
+          if [ -n "$prev_sha" ] && git cat-file -e "${prev_sha}^{commit}" 2>/dev/null; then
+            base="$prev_sha"; base_label="$prev_tag"
+          else
+            base="$(git rev-list --max-parents=0 HEAD)"; base_label="首个提交"
+          fi
+
+          # ★ 必须用 tformat：format 末尾无换行，read 在 EOF 会丢弃「恰好 1 条」的行
+          : > commits.md
+          git log --no-merges --max-count=60 --pretty=tformat:'%H%x09%s' "$base..HEAD" \
+            | while IFS=$'\t' read -r h s; do
+                if [ -z "$h" ]; then continue; fi
+                printf -- '- [`%s`](%s/commit/%s) %s\n' "${h:0:7}" "$repo_url" "$h" "$s" >> commits.md
+              done
+          n=$(grep -c '^- ' commits.md || true)
+          echo "本次提交记录：$n 条（基准 $base_label）"
+
+          cat > release_notes.md <<'EOF'
+          ## 《横扫千军：王国风云》4.1BB 简体中文补丁 · `@@TAG@@`
+
+          下载 zip，**把包内全部文件解压到游戏安装目录**（`KINGDOMS.icd` 所在文件夹）。
+          `version.dll`、`chs.dict`、`chs_res\` 都是新增文件，不改动游戏自带文件；
+          删掉这三项即完全卸载。
+
+          > ⚠️ 需自备 4.1BB 正版游戏，本包不含游戏原始数据。
+          > 联机双方需安装同一版本补丁（只装一方时文字显示不同步，但不影响判定）。
+          > 本补丁为运行时注入式汉化，不修改 `KINGDOMS.icd` 与任何 `*.hpi`。
+          EOF
+
+          {
+            echo
+            echo "### 🧾 本次更新（自 \`$base_label\` 起，共 ${n} 条提交）"
+            echo
+            if [ -s commits.md ]; then cat commits.md; else echo "(本次构建无新增提交)"; fi
+          } >> release_notes.md
+
+          {
+            echo
+            echo "### 📦 下载"
+            echo
+            echo "| 附件名 | 内容 |"
+            echo "|---|---|"
+            echo "| \`$zip_name\` | 简体中文（CHS）完整补丁 |"
+            echo
+            echo "### 📖 必读说明（安装 / 卸载 / 已知限制）"
+          } >> release_notes.md
+
+          {
+            echo
+            # ★ 必读说明在 zip 内部（artifact 只上传 zip，不含独立的说明文件），
+            #   故从 zip 里取 —— 这样 Release 正文与玩家实际拿到的包内说明逐字一致。
+            if unzip -p "$zip_path" INSTALL.txt 2>/dev/null \
+                 | sed '1s/^\xEF\xBB\xBF//' | tr -d '\r' > readme_embed.txt \
+               && [ -s readme_embed.txt ]; then
+              echo "<details><summary>展开完整必读说明（与包内 INSTALL.txt 一致）</summary>"
+              echo
+              echo "<pre>"
+              cat readme_embed.txt
+              echo "</pre>"
+              echo
+              echo "</details>"
+            else
+              echo "> ⚠️ 未能从 zip 内取出 INSTALL.txt，本次未附带。"
+            fi
+            echo
+            echo "---"
+            echo
+            echo "源码仓库：<$repo_url>　·　作者主页：<https://www.haojun0823.xyz/>"
+            echo
+            echo "对应源码与改动说明见仓库（许可要求随分发提供）：<$repo_url>　·　<$repo_url/commits/master>"
+          } >> release_notes.md
+
+          sed -i "s/@@TAG@@/$tag/g" release_notes.md
+          if grep -q '@@TAG@@' release_notes.md; then
+            echo "!! 仍有未替换的 @@TAG@@" >&2; exit 1
+          fi
+          echo "── release_notes.md 生成完毕（$(wc -l < release_notes.md) 行）──"
+
+      - name: 创建 Release 并校验 body
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.tag.outputs.tag }}"
+          slug="${{ github.repository }}"
+
+          if [ ! -f release_notes.md ]; then echo "!! 未找到 release_notes.md" >&2; exit 1; fi
+          for sec in "### 📦 下载" "### 📖 必读说明" "### 🧾 本次更新"; do
+            if ! grep -qF "$sec" release_notes.md; then
+              echo "!! release_notes.md 缺少段落「$sec」" >&2; exit 1
+            fi
+          done
+          echo "✓ release_notes.md 三段预检通过"
+
+          zip_path="$(find dist -name 'TAK-41BB-CHS-*.zip' -print -quit 2>/dev/null || true)"
+          if [ -z "$zip_path" ]; then
+            echo "!! 未找到发布 zip；dist 实际内容：" >&2
+            ls -R dist >&2 || true
+            exit 1
+          fi
+
+          # 用 GITHUB_TOKEN 建 tag 不会触发新的 on:push run；直接 gh release create。
+          # gh release create 需要 tag 已在远端，直接 --target 指向当前 commit SHA
+          # 由 gh 代建远端 tag。
+          gh release create "$tag" \
+            "$zip_path" \
+            --target "$GITHUB_SHA" \
+            --title "横扫千军：王国风云 汉化补丁 $tag" \
+            --notes-file release_notes.md
+
+          # body 自检：非空、首行符合预期
+          body="$(gh release view "$tag" --repo "$slug" --json body --jq .body)"
+          body_head="${body%%$'\n'*}"
+          if [ -z "$body_head" ] || [[ "$body_head" != "## 《横扫千军：王国风云》4.1BB 简体中文补丁"* ]]; then
+            echo "!! Release body 异常（首行=[$body_head]）" >&2; exit 1
+          fi
+          echo "✓ Release body 已写入（首行：${body_head}…）"
+          echo "✅ 已发布: $tag"

@@ -11,8 +11,9 @@
     chs.dict       运行时词典
     chs_res/       资源层（来自 payload/chs_res.zip）
     INSTALL.txt    安装说明（@VERSION@ 已替换，UTF-8 BOM + CRLF）
-    LICENSE        MIT
-    NOTICE.txt     版权与第三方声明
+    LICENSE        HJNCSA-1.0（本项目的许可全文）
+    LICENSES/      基础许可 Apache-2.0 与第三方许可全文
+    NOTICE         版权、来源与改动说明（源文件 packaging/NOTICE.txt）
 
 用法
     python tools/stage_release.py --version v0.1.0 --dll build_dll/version.dll
@@ -95,13 +96,32 @@ def main():
     render_install(os.path.join(a.packaging, "INSTALL.txt"),
                    os.path.join(out, "INSTALL.txt"), a.version)
 
-    for name in ("NOTICE.txt",):
-        shutil.copy2(os.path.join(a.packaging, name), os.path.join(out, name))
+    # 包内文件名用不带扩展名的 NOTICE：Apache 2.0 第 4(d) 节与本许可第
+    # 3.7(a) 节都按「名为 NOTICE 的文件」表述；仓库里的编辑源仍是
+    # packaging/NOTICE.txt（带扩展名方便编辑器识别）。
+    shutil.copy2(os.path.join(a.packaging, "NOTICE.txt"),
+                 os.path.join(out, "NOTICE"))
+
+    # HJNCSA-1.0 以 Apache 2.0 为基础，要求随分发物提供本文件与基础许可
+    # 全文（第 0 节、第 3.8 节）。LICENSES/ 整目录带上，NOTICE 里引用的
+    # TAUtil-MIT.txt 才会在包内真实存在。
     lic = os.path.join(ROOT, "LICENSE")
-    if os.path.isfile(lic):
-        shutil.copy2(lic, os.path.join(out, "LICENSE"))
-    else:
+    if not os.path.isfile(lic):
         sys.exit("找不到仓库根 LICENSE")
+    shutil.copy2(lic, os.path.join(out, "LICENSE"))
+
+    licdir = os.path.join(ROOT, "LICENSES")
+    if not os.path.isdir(licdir):
+        sys.exit("找不到 LICENSES/ —— 许可要求随包提供基础许可全文")
+    os.makedirs(os.path.join(out, "LICENSES"), exist_ok=True)
+    nlic = 0
+    for name in sorted(os.listdir(licdir)):
+        if name.lower().endswith(".txt"):
+            shutil.copy2(os.path.join(licdir, name),
+                         os.path.join(out, "LICENSES", name))
+            nlic += 1
+    if not os.path.isfile(os.path.join(out, "LICENSES", "Apache-2.0.txt")):
+        sys.exit("LICENSES/ 里缺少 Apache-2.0.txt")
 
     total = 0
     nfile = 0
@@ -114,6 +134,7 @@ def main():
     print("  version.dll %d 字节" % os.path.getsize(os.path.join(out, "version.dll")))
     print("  chs.dict    %d 字节" % os.path.getsize(os.path.join(out, "chs.dict")))
     print("  chs_res/    %d 个文件" % len(names))
+    print("  LICENSES/   %d 份许可全文" % nlic)
     return 0
 
 
