@@ -122,6 +122,7 @@
     <ClInclude Include="src\translate.h" />
     <ClInclude Include="src\cjk_font.h" />
     <ClInclude Include="src\cd_patch.h" />
+    <ClInclude Include="src\fs_override.h" />
     <ClInclude Include="src\gdi_probe.h" />
     <ClInclude Include="src\target.h" />
     <ClInclude Include="src\proxy.h" />
@@ -145,6 +146,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\cd_patch.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\fs_override.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\gdi_probe.cpp">

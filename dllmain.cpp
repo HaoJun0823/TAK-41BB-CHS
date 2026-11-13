@@ -12,6 +12,7 @@
 
 #include "src/cd_patch.h"
 #include "src/cjk_font.h"
+#include "src/fs_override.h"
 #include "src/gdi_probe.h"
 #include "src/log.h"
 #include "src/proxy.h"
@@ -83,6 +84,13 @@ DWORD WINAPI InitThread(LPVOID param) {
 
     CHS_LOG("%s", chs::CdCheckBypassReport());
 
+    // 资源层（02/03/04 组）：任务 .txt、GUI .gui、单位 .fbi/.tdf 都在 HPI 里，
+    // 引擎的读取全部经过 sub_53AFF0。这里把它接管，改读 <游戏目录>\chs_res\。
+    // 必须先于其它初始化装好，否则主菜单已经建好的界面仍是英文。
+    if (!chs::FsOverrideInit(self)) {
+        CHS_LOGE("res: 资源重定向未启用");
+    }
+
     wchar_t dict_path[MAX_PATH] = {0};
     SidecarPath(self, L"chs.dict", dict_path);
 
@@ -150,6 +158,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved) {
             CHS_LOG("==== 进程退出 ====");
         }
         chs::GdiProbeReport();
+        chs::FsOverrideReport();
         chs::WebOverrideReport();
         chs::CjkFontShutdown();
         chs::LogShutdown();

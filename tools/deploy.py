@@ -39,6 +39,9 @@ PROXIES = {
 }
 DEFAULT_PROXY = "version"
 
+# 上一版铺到游戏根目录、本轮要清理的松散文件（相对路径）
+PENDING_CLEANUP = []
+
 # 同一 VFS 路径在多个 HPI 里各有副本时，按游戏加载顺序取最后生效的那份。
 # 引擎用 *.hpi 通配枚举、按文件名升序装载，后装覆盖先装；这里按同一顺序
 # 给权重，数字大的优先。只用于「各版本改写后正文一致」的情况，
@@ -93,7 +96,7 @@ def walk_files(root):
     return out
 
 
-def plan_install(game, assets, dll, proxy, loose=False):
+def plan_install(game, assets, dll, proxy, res=False):
     """返回 (actions, warnings)。
 
     action = (说明, 源, 目标 [, 模式])
@@ -179,52 +182,61 @@ def plan_install(game, assets, dll, proxy, loose=False):
     else:
         warns.append("没找到 %s，跳过网页译文层" % web)
 
-    # 5) 松散资源：把改写后的 .txt/.ota/.gui/.fbi/.tdf 按 VFS 路径放到游戏根目录。
+    # 5) 资源层：把改写后的 .txt/.ota/.gui/.fbi/.tdf 按 VFS 路径放进 chs_res/。
     #
-    #    为什么必须这么做：任务文本（.txt）和 GUI 控件文字（.gui 里的
-    #    `2 0 <len> <text>`）是引擎直接取来画的，**不经过 sub_544020**，
-    #    所以 chs.dict 翻不到它们 —— 实机日志里 miss 列表从不出现
-    #    "Bilinear Filtering" 就是证据。只有换资源本体才生效。
-    #
-    #    引擎查松散文件优先于 HPI（Startup.tdf 只存在于磁盘、不在任何 HPI，
-    #    游戏照样能读），因此按 VFS 路径铺到游戏根目录即可，原版 HPI 不动。
+    #    为什么不是铺到游戏根目录：引擎的 sub_53AFF0 只在
+    #    「Override File Search Path 为空」时才尝试 fopen 松散文件；实测该
+    #    路径在初始化时被设置，松散分支永远走不到（铺 843 个文件到根目录
+    #    实测零效果）。DLL 现在直接接管 sub_53AFF0，命中 chs_res/ 就返回
+    #    我们构造的引擎文件对象，因此译文必须放在 chs_res/<VFS 路径>。
     #
     #    版本歧义：同一 VFS 路径在 data / V2Rocket / V3Rocket / IPData 等包里
     #    各有一份，4.1BB 补丁改过 .fbi 的 frozen/airship/healtime 这些平衡字段。
     #    选错版本 = 回退数值 = 联机不同步，所以只有「改写后正文完全一致」的
     #    多版本才敢落盘，其余一律跳过并计数。
-    if loose:
-        up = os.path.join(assets, "update")
-        if os.path.isdir(up):
-            cand = {}
-            for hpdir in sorted(os.listdir(up)):
-                hp = os.path.join(up, hpdir)
+    if res:
+        # 只取 update/：build_out/translate/ 是另一套「精简语言槽」产物，
+        # 与 update/ 里改写后的原文件同路径，混进来会互相覆盖。
+        cand = {}
+        base = os.path.join(assets, "update")
+        if os.path.isdir(base):
+            for hpdir in sorted(os.listdir(base)):
+                hp = os.path.join(base, hpdir)
                 if not os.path.isdir(hp) or hpdir.startswith("_"):
                     continue      # _root 里的 Startup.tdf 会顶掉根目录原版文件
                 for full, rel in walk_files(hp):
-                    cand.setdefault(rel.replace("\\", "/").lower(), []).append(
-                        (hpdir, full, rel))
-            taken = amb = 0
-            skipped_exist = []
-            for key, items in sorted(cand.items()):
-                items.sort(key=lambda x: -LOOSE_PRIORITY.get(x[0].lower(), 0))
-                hpdir, full, rel = items[0]
-                if len(items) > 1 and not same_bodies(items):
-                    amb += 1
-                    continue
-                dest = os.path.join(game, rel)
-                if os.path.exists(dest):
-                    skipped_exist.append(rel)
-                    continue
-                acts.append(("资源 %s ← %s" % (key, hpdir), full, dest))
-                taken += 1
-            print("   （松散资源 %d 个文件；版本歧义跳过 %d；根目录已有同名 %d）"
-                  % (taken, amb, len(skipped_exist)))
-            for rel in skipped_exist[:5]:
-                warns.append("跳过（根目录已有同名文件）：%s" % rel)
-        else:
-            warns.append("没找到 %s，跳过松散资源部署" % up)
-    elif loose is False:
+                    key = rel.replace("\\", "/").lower()
+                    cand.setdefault(key, []).append((hpdir, full, rel))
+        taken = multi = stale = 0
+        multi_src = {}
+        for key, items in sorted(cand.items()):
+            # 同一 VFS 路径在多个包里各有一份：引擎按包加载顺序取后者
+            # （4.1BB 的 V3Rocket 最后加载），所以我们同样取优先级最高的
+            # 版本，才能与游戏正在用的数值一致。取错 = 回退 4.0 平衡。
+            items.sort(key=lambda x: -LOOSE_PRIORITY.get(x[0].lower(), 0))
+            hpdir, full, rel = items[0]
+            if len(items) > 1 and not same_bodies(items):
+                multi += 1
+                multi_src[hpdir] = multi_src.get(hpdir, 0) + 1
+            # 上一版铺在游戏根目录的松散文件：内容一致才删，避免误删原版
+            old = os.path.join(game, rel)
+            if os.path.isfile(old):
+                try:
+                    if _body(open(old, "rb").read()) == _body(open(full, "rb").read()):
+                        PENDING_CLEANUP.append(rel)
+                        stale += 1
+                except OSError:
+                    pass
+            acts.append(("资源 %s ← %s" % (key, hpdir), full,
+                         os.path.join(game, "chs_res", rel)))
+            taken += 1
+        print("   （chs_res 资源 %d 个；多版本按优先级取 %d；根目录待清理 %d）"
+              % (taken, multi, stale))
+        if multi:
+            detail = "、".join("%s %d" % (k, v) for k, v in
+                               sorted(multi_src.items(), key=lambda x: -x[1]))
+            warns.append("多版本资源按包优先级取用（%s）——与引擎自己的取用顺序一致" % detail)
+    elif res is False:
         pass
 
     acts.append(("写入安装标记（供撤回识别）", None,
@@ -269,6 +281,31 @@ def do_install(game, acts, apply_):
             for r in written:
                 f.write(r + "\n")
     return total
+
+
+def cleanup_stale_loose(game):
+    """删掉上一版铺在根目录的松散资源（只删内容与产物一致的那些）。"""
+    removed = 0
+    dirs = set()
+    for rel in PENDING_CLEANUP:
+        p = os.path.join(game, rel)
+        if not os.path.isfile(p):
+            continue
+        try:
+            os.remove(p)
+            removed += 1
+            dirs.add(os.path.dirname(p))
+        except OSError as e:
+            print("  [警告] 删不掉 %s: %s" % (rel, e))
+    for d in sorted(dirs, key=lambda x: -x.count(os.sep)):
+        cur = d
+        while os.path.isdir(cur) and not os.listdir(cur):
+            try:
+                os.rmdir(cur)
+            except OSError:
+                break
+            cur = os.path.dirname(cur)
+    return removed
 
 
 def plan_uninstall(game):
@@ -334,9 +371,9 @@ def main():
                     help="代理 DLL 路径（默认 build_dll/<proxy>）")
     ap.add_argument("--apply", action="store_true", help="真正执行（默认只预演）")
     ap.add_argument("--uninstall", action="store_true", help="撤回")
-    ap.add_argument("--loose", action="store_true",
-                    help="额外把改写后的 .txt/.ota/.gui/.fbi/.tdf 按 VFS 路径"
-                         "铺到游戏根目录（任务与 GUI 文字只此一途生效）")
+    ap.add_argument("--res", action="store_true",
+                    help="把改写后的 .txt/.ota/.gui/.fbi/.tdf 按 VFS 路径"
+                         "放进 chs_res/（由 DLL 接管引擎的文件读取）")
     a = ap.parse_args()
 
     dll = a.dll or os.path.join("build_dll", PROXIES[a.proxy])
@@ -357,7 +394,7 @@ def main():
         do_uninstall(acts, a.apply)
     else:
         acts, warns = plan_install(game, os.path.abspath(a.assets), dll, a.proxy,
-                                   loose=a.loose)
+                                   res=a.res)
         if acts is None:
             for w in warns:
                 print("[中止] " + w)
@@ -365,6 +402,9 @@ def main():
         print("安装计划（%d 步）：" % len(acts))
         total = do_install(game, acts, a.apply)
         print("\n合计写入约 %s" % human(total))
+        if a.apply and a.res and PENDING_CLEANUP:
+            n = cleanup_stale_loose(game)
+            print("已清理上一版铺在根目录的松散资源 %d 个" % n)
 
     for w in warns:
         print("[注意] " + w)
