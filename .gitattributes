@@ -8,6 +8,9 @@ docs/*.md       text eol=lf
 *.md            text eol=lf
 .gitignore      text eol=lf
 
+# workflow 同样锁 LF：CRLF 虽能被 GitHub 解析，但会让本地 diff 噪声变大
+.github/**     text eol=lf
+
 # 清单是给 Excel 打开的 utf-8-sig CSV，换行交给 Git 自动处理即可
 inventory/*.csv text
 
