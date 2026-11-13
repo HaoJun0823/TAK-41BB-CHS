@@ -66,8 +66,14 @@ LIB_NOISE = (
     "uppercase uppercase pairs", "lowercase lowercase pairs",
 )
 
+# printf 占位符必须整体匹配：%ld / %02x / %3.1f / %% 都算一个，
+# 旧版 %[-+ #0-9.]*[a-zA-Z] 会把 %ld 切成 %l，把 "%% complete" 切成 "% c"。
+PRINTF_RE = re.compile(
+    r"%(?:%|[-+ #0]*\d*(?:\.\d+)?(?:hh|h|ll|l|L|z|j|t)?[diouxXeEfgGaAcspn])"
+)
+TAG_RE = re.compile(r"<\s*/?\s*[A-Za-z][^>]*>")
 PLACEHOLDER_RE = re.compile(
-    r"%[-+ #0-9.]*[a-zA-Z]|<\s*/?\s*[A-Za-z][^>]*>|\{\d+\}|#\w+#|\\n|\\t|\$[A-Za-z_]\w*"
+    PRINTF_RE.pattern + r"|" + TAG_RE.pattern + r"|\{\d+\}|#\w+#|\\n|\\t|\$[A-Za-z_]\w*"
 )
 
 
