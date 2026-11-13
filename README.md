@@ -19,6 +19,7 @@
 | 资产打包（明文 → 补丁，CI 三段式） | **完成**，见 `.github/workflows/build-assets.yml` |
 | DLL 实现（文本 hook + binkw32 代理） | **完成**，见 `docs/03-DLL构建与验证.md` |
 | 中文字库层（运行时纹理帧） | **完成并实机验证**，见 [`docs/04-中文字库层.md`](docs/04-中文字库层.md) |
+| 4.1BB 光盘校验（内存短路，磁盘不动） | **完成并实机验证**，见 [`docs/05-版本差异与光盘校验.md`](docs/05-版本差异与光盘校验.md) |
 | CI 编译 DLL（`build-dll.yml`，带导出表门禁） | **完成** |
 | 联机实测 | 待做 |
 
@@ -39,6 +40,7 @@ hook 字形绘制补 GBK 中文 + `binkw32.dll` 代理注入，**磁盘游戏文
 | [`docs/02-IDA与DLL方案.md`](docs/02-IDA与DLL方案.md) | IDA 静态分析：文本管线、语言槽、字库上限、DLL 分层架构、hook 签名、联机保护、验证清单 |
 | [`docs/03-DLL构建与验证.md`](docs/03-DLL构建与验证.md) | DLL 构建链、部署方式、实机验证流程 |
 | [`docs/04-中文字库层.md`](docs/04-中文字库层.md) | **中文字库层**：字体槽布局、造帧 API、GBK 双字节绘制、换行/居中的字距表补丁、踩过的坑 |
+| [`docs/05-版本差异与光盘校验.md`](docs/05-版本差异与光盘校验.md) | **4.0BB 与 4.1BB 的 43 字节差异**、版本号来源、光盘校验机制、内存短路的两处补丁 |
 | `tools/hpi_v2.py` | HPI v2 纯 Python 读取器：`list` / `extract` / `survey` / `inventory` / `verify` |
 | `tools/extract_strings.py` | 从干净 41BB 抽取全部待译英文，生成 `text/*.jsonl` |
 | `tools/verify_strings.py` | 独立校验：格式、唯一性、占位符、编码指纹、与基线一致 |

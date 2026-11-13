@@ -7,6 +7,7 @@
 // 磁盘上的游戏文件一个字节都不改，卸载只需删掉代理与我们的 DLL。
 #include "pch.h"
 
+#include "src/cd_patch.h"
 #include "src/cjk_font.h"
 #include "src/gdi_probe.h"
 #include "src/log.h"
@@ -36,6 +37,7 @@ DWORD WINAPI InitThread(LPVOID param) {
 
     CHS_LOG("==== TAK CHS DLL 启动 ====");
     CHS_LOG("自身: %ls", dll_path);
+    CHS_LOG("%s", chs::CdCheckBypassReport());
 
     wchar_t dict_path[MAX_PATH] = {0};
     wcscpy_s(dict_path, dir);
@@ -67,6 +69,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH:
         DisableThreadLibraryCalls(hModule);   // 减少 THREAD_* 通知开销
+        // 光盘校验必须在这里同步短路：初始化线程是异步的，等它被调度时
+        // 主线程可能已经跑过主菜单的检查了。VirtualProtect + memcpy 不涉
+        // 及加载 DLL 或等待，在 loader lock 下是安全的。
+        chs::CdCheckBypass();
         {
             HANDLE t = CreateThread(nullptr, 0, InitThread, hModule, 0, nullptr);
             if (t) {

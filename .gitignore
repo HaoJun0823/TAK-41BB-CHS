@@ -19,6 +19,7 @@ __pycache__/
 # 实机测试脚本要入库，截图不入库
 _probe/*
 !_probe/*.py
+!_probe/mk.bat
 .workbuddy/
 venv/
 venv*/

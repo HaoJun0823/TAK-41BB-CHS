@@ -120,6 +120,7 @@
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\translate.h" />
     <ClInclude Include="src\cjk_font.h" />
+    <ClInclude Include="src\cd_patch.h" />
     <ClInclude Include="src\gdi_probe.h" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +138,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\cjk_font.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\cd_patch.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\gdi_probe.cpp">
