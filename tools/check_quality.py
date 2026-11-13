@@ -176,6 +176,66 @@ def check_numbers(rows):
     return bad
 
 
+def load_lore(text_dir):
+    """读专名表的中文变体与定稿中文，供 C 档检查用。"""
+    path = os.path.join(text_dir, "lore_terms.json")
+    if not os.path.exists(path):
+        return {}, []
+    d = json.load(open(path, encoding="utf-8"))
+    variants = {k: v for k, v in d.get("variants", {}).items()
+                if not k.startswith("_")}
+    canon_zh = sorted({v for v in d.get("canonical", {}).values() if v},
+                      key=len, reverse=True)
+    return variants, canon_zh
+
+
+def check_variants(rows, variants, canon_zh):
+    """译文里还留着旧译名（范诺克 / 谢凯勒什 / 邪恶计数器…）就算术语不一致。
+
+    先把定稿中文整段挖掉再查：「战室」是「作战室」的一部分、
+    「阿比亚」是「阿比亚德」的一部分，不挖会满屏误报。
+    """
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        s = r["zh"]
+        for form in canon_zh:
+            s = s.replace(form, "")
+        for old in sorted(variants, key=len, reverse=True):
+            if old in s:
+                bad.append((r, "旧译名:%s->%s" % (old, variants[old])))
+                break
+    return bad
+
+
+DUP_PAREN = re.compile(r"([\u4e00-\u9fff]{2,10})（\1）")
+
+
+def check_duplicate_paren(rows):
+    """「塔卡瓦瓦（塔卡瓦瓦）」这类重复括注：英文名替换后常见的残留。"""
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        if DUP_PAREN.search(r["zh"]):
+            bad.append((r, "重复括注"))
+    return bad
+
+
+def check_long_sentence(rows, limit=68):
+    """一个分句长到没处换气，多半是照英文语序硬拖下来的。"""
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        for seg in re.split(r"[，。；！？：、\n]", r["zh"]):
+            if len(re.findall(r"[\u4e00-\u9fff]", seg)) > limit:
+                bad.append((r, "超长句:%d字" % len(seg)))
+                break
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description="译文质量体检")
     ap.add_argument("--text", default=os.path.join(ROOT, "text"))
@@ -189,6 +249,7 @@ def main():
         terms = {k: v for k, v in json.load(open(a.terms, encoding="utf-8")).items()
                  if not k.startswith("_")}
 
+    variants, canon_zh = load_lore(a.text)
     total_bad = 0
     shown = 0
     for fn in sorted(os.listdir(a.text)):
@@ -201,7 +262,10 @@ def main():
                   ("界面英文", check_ui_latin(rows)),
                   ("数字丢失", check_numbers(rows)),
                   ("排版", check_punct(rows)),
-                  ("繁体", check_traditional(rows))]
+                  ("繁体", check_traditional(rows)),
+                  ("旧译名", check_variants(rows, variants, canon_zh)),
+                  ("重复括注", check_duplicate_paren(rows)),
+                  ("超长句", check_long_sentence(rows))]
         n = sum(len(x[1]) for x in groups)
         total_bad += n
         print("%-22s done=%-5d 问题=%d  %s" % (

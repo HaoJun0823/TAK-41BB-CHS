@@ -227,6 +227,14 @@ def write_chs_dict(fwd, out_dir):
                 continue
             kb = encode_game(k)
             vb = encode_game(zh)
+            # 纯西文串（如地图规格「6×6」）走的是 cp1252，'×' 会变成单字节
+            # 0xD7；GBK 把它当双字节前导，字典里这一行就整行解不开。
+            # 字典的译文必须整体是合法 GBK，所以这里补一道校验：解不开就
+            # 改用 GBK 重编（'×' 在 GBK 里是 0xA1C1 双字节）。
+            try:
+                vb.decode("gbk")
+            except UnicodeDecodeError:
+                vb = zh.encode("gbk", errors="replace")
             # 结构字符不能出现在字段里，否则行切分会错位
             if b"\t" in kb or b"\n" in kb or b"\r" in kb:
                 skipped += 1

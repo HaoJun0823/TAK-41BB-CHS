@@ -96,7 +96,17 @@
     "Direct Play failed to add new player.  Recommended you go to previous screen and re-create the game session.": "DirectPlay 未能添加新玩家。建议返回上一界面并重新创建游戏会话。",
     "Purpose: To allow players the opportunity to fight for one of the four races within TA:Kingdoms, rising in prestige and achieving rank through victory.": "目的：让玩家有机会在《横扫千军：王国风云》中为四大种族之一而战，通过胜利提升声望、赢得排名。",
     "Fully Compatible with Kingdoms 2.0": "完全兼容《王国风云》2.0",
-    "· Full compatibility and support for Kingdoms 2.0": "· 完全兼容并支持《王国风云》2.0"
+    "· Full compatibility and support for Kingdoms 2.0": "· 完全兼容并支持《王国风云》2.0",
+    "Page command syntax: +page <user> <text>": "传呼命令语法：+page <user> <text>",
+    "Page request for %s was sent (truncated).": "给 %s 的传呼已发出（内容被截断）。",
+    "Page command requires game launch from the Boneyards.": "传呼命令要求从 Boneyards 启动游戏。",
+    "A page request for %s has been sent.": "已向 %s 发出传呼。",
+    "Ignores Pages:": "忽略传呼：",
+    "Ignores Pages": "忽略传呼",
+    "Page Person": "传呼某人",
+    "Page House Members": "传呼家族成员",
+    "Page Member": "传呼成员",
+    "One final note: You can choose to ignore pages by modifying your personal profile (see the profile section for more information).": "最后一点：不想收传呼，可以在个人资料里设置（详见「资料」一节）。"
   },
   "id_overrides": {
     "_note": "长句按 id 覆盖：改整段比在 overrides 里塞整句更好核对。",

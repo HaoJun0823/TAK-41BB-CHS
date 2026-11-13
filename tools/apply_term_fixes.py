@@ -38,6 +38,7 @@ def main():
 
     changed = 0
     hit = set()
+    present = set()
     for fn in sorted(os.listdir(args.text)):
         if not fn.endswith(".jsonl"):
             continue
@@ -51,6 +52,7 @@ def main():
         dirty = False
         for r in rows:
             en = (r.get("en") or "").strip()
+            present.add(en)
             new = None
             if r.get("id") in id_overrides:
                 new = id_overrides[r["id"]]
@@ -83,10 +85,10 @@ def main():
                     f.write(json.dumps(r, ensure_ascii=False, separators=(",", ":")))
                     f.write("\n")
 
-    miss = sorted(set(overrides) - hit)
+    miss = sorted(set(overrides) - present)
     print("---- 改动 %d 处，涉及 %d 个英文键 ----" % (changed, len(hit)))
     if miss:
-        print("未在清单中出现的键（可能拼写不同或未抽取）：")
+        print("定稿表里找不到对应原文的键（拼写变了或已从抽取表移除）：")
         for m in miss:
             print("   %r" % m)
     if changed and not args.write:

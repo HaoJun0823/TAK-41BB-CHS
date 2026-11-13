@@ -115,4 +115,23 @@ python tools/verify_strings.py --text text --against-game <41BB目录>
 python tools/build_assets.py --text text --out build_out --slot Chinese --strict
 ```
 
+## 人工定稿的三层（重跑抽取后按序重放）
+
+`*.jsonl` 是抽取产物，重跑 `extract_strings.py` 会把人工改的 `zh` 冲掉。
+人工成果一律外置成表，任何时候按顺序各跑一次即可完整恢复：
+
+| 层 | 真相源 | 内容 | 重放命令 |
+|---|---|---|---|
+| A 档 | `fixes.json` | 界面短词的定稿译法 + 定点替换 | `python tools/apply_term_fixes.py --text text --write` |
+| B 档 | `lore_terms.json` | 专名与术语锁定（`canonical` 英文→定稿，`variants` 旧译名→定稿） | `python tools/apply_lore_terms.py --text text --write` |
+| C 档 | `polish.json` | **311 条长文本逐段重写**（剧情、百科、帮助长句），`id -> 定稿 zh` | `python tools/apply_polish.py --text text --write` |
+
+**顺序固定为 B → A → C**：先统一专名，再套短词定稿，最后用整段定稿覆盖，
+避免后跑的归一规则把已定稿的句子又改回去。`apply_polish.py` 每次套用前会校验
+`id` 存在、`<$模板$>` 与 `%s/%d` 原样保留，任一不符就整体中止。
+
+C 档的体例是「意译优先，音译兜底」：语序按中文重排，括号补充只在必要时留，
+专名写法一律以 `lore_terms.json` 为准。质量门 `check_quality.py` 另外查
+旧译名残留、重复括注、超长句，共 10 项，加 `--strict` 有违规即退出 1。
+
 打包产物与 TODO 见 [`docs/01-待译表与打包约定.md`](../docs/01-待译表与打包约定.md)。
