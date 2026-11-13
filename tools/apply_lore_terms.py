@@ -82,11 +82,18 @@ def apply_one(zh, canon, variants, phrases, stats):
             return zh_form
         s = pat.sub(rep, s)
 
-    # 变体中文（长的先换）
-    for bad, good in sorted(variants.items(), key=lambda kv: -len(kv[0])):
-        if bad in s:
-            stats["变体:" + bad] += s.count(bad)
-            s = s.replace(bad, good)
+    # 变体中文：单遍替换，长的优先。
+    # 不能逐条 str.replace——替换结果会被后一条规则再次命中（「战争房间」→「作战室」，
+    # 随后「战室」又命中「作战室」里的子串，产出「作作战室」）。一次扫描只查原文即可。
+    if variants:
+        alt = "|".join(re.escape(k) for k in sorted(variants, key=len, reverse=True))
+
+        def vrep(m):
+            bad = m.group(0)
+            stats["变体:" + bad] += 1
+            return variants[bad]
+
+        s = re.sub(alt, vrep, s)
 
     # 中文之间的多余空格收掉（替换英文名后常留下「铁砧岩 是」这种缝）
     s = re.sub(r"(?<=[\u4e00-\u9fff])[ \t]+(?=[\u4e00-\u9fff])", "", s)

@@ -159,8 +159,35 @@ def check_traditional(rows):
     return bad
 
 
+CN_DIGIT = {"零": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4,
+            "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+CN_UNIT = {"十": 10, "百": 100, "千": 1000, "万": 10000}
+
+
+def cn_numbers(s):
+    """把中文数字（一千、一百八十、十五）折成阿拉伯数字集合，供数字校验比对。"""
+    out = set()
+    for m in re.finditer(r"[零一二三四五六七八九十百千万两]+", s):
+        total = section = num = 0
+        for ch in m.group(0):
+            if ch in CN_DIGIT:
+                num = CN_DIGIT[ch]
+            else:
+                unit = CN_UNIT[ch]
+                if unit == 10000:
+                    total += (section + num) * unit
+                    section = 0
+                else:
+                    section += (num or 1) * unit
+                num = 0
+        val = total + section + num
+        if val:
+            out.add(str(val))
+    return out
+
+
 def check_numbers(rows):
-    """原文的整数应在译文中出现（允许年份/版本被译成中文数字的情况先不查）。"""
+    """原文的整数应在译文中出现；中文数字（一千、一百八十）算命中。"""
     bad = []
     for r in rows:
         if r["status"] != "done" or not r["zh"]:
@@ -168,9 +195,11 @@ def check_numbers(rows):
         # 散文里常把数字写成中文（四千），只在短标签/数值串上强校验
         if len(r["zh"]) > 60:
             continue
+        zh_digits = r["zh"].replace(",", "")
+        zh_cn = cn_numbers(r["zh"])
         nums = re.findall(r"(?<![A-Za-z0-9])(\d[\d,]{0,5})(?![A-Za-z0-9])", r["en"])
         for n in {x.replace(",", "") for x in nums}:
-            if n not in r["zh"].replace(",", ""):
+            if n not in zh_digits and n not in zh_cn:
                 bad.append((r, "number:%s" % n))
                 break
     return bad

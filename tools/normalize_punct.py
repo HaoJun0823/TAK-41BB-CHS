@@ -45,6 +45,17 @@ def fix(s):
         return "\x01%d\x02" % (len(store) - 1)
 
     s = MASK.sub(stash, s)
+    # 列表符号统一：原版在 • / ● / · 之间混用，中文里统一成居中点
+    s = re.sub(r"^\s*[●•·]\s*", "· ", s)
+    # 直引号成对换成「」：界面串里常留着 "搜索"、'%s' 这种半角引号
+    for _ in range(3):
+        t = re.sub(r'"([^"\n]{1,40})"', "「\\1」", s)
+        t = re.sub(r"'([^'\n]{1,40})'", "「\\1」", t)
+        if t == s:
+            break
+        s = t
+    # 弯引号统一成「」：全文只留一种引号，界面元素与叙述引语都不混用
+    s = s.replace("“", "「").replace("”", "」")
     s = re.sub(r"\.{3,}", "……", s)
     # 汉字后面的半角标点
     s = re.sub(r"(?<=[%s])\s*([,;:!?])" % CJK, lambda m: PAIRS[m.group(1)], s)
@@ -56,6 +67,9 @@ def fix(s):
     # 全角标点前后的空格
     s = re.sub(r"\s+(?=[，。；：！？])", "", s)
     s = re.sub(r"(?<=[，。；：！？])[ \t]+", "", s)
+    # 引号与汉字之间的空格（英文词两侧保留）
+    s = re.sub(r"(?<=[%s])[ \t]+(?=「)" % CJK, "", s)
+    s = re.sub(r"(?<=」)[ \t]+(?=[%s])" % CJK, "", s)
 
     s = re.sub(r"\x01(\d+)\x02", lambda m: store[int(m.group(1))], s)
     return s

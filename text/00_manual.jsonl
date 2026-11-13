@@ -137,7 +137,7 @@
 {"id":"00-0137","en":"Zero length zTXt chunk","zh":"zTXt 数据块长度为零","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
 {"id":"00-0138","en":"News&Info","zh":"新闻与信息","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
 {"id":"00-0139","en":"Warning: While attempting to login to metagame, you were already logged in","zh":"警告：尝试登录元游戏时，你已处于登录状态","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
-{"id":"00-0140","en":"Hitting '~' on the Map of Darien cycles through alternate map info modes","zh":"在达里恩地图上按“~”可切换不同的地图信息模式","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
+{"id":"00-0140","en":"Hitting '~' on the Map of Darien cycles through alternate map info modes","zh":"在达里恩地图上按「~」可切换不同的地图信息模式","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
 {"id":"00-0141","en":"Duplicate PLTE chunk","zh":"重复的 PLTE 数据块","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
 {"id":"00-0142","en":"Incorrect PLTE chunk length","zh":"PLTE 数据块长度不正确","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
 {"id":"00-0143","en":"Duplicate bKGD chunk","zh":"重复的 bKGD 数据块","status":"done","ctx":"运行时词条：主程序内置提示 / 地图规格，经 chs.dict 查表替换","kind":"manual","placeholders":[],"flags":["promoted"],"targets":[]}
