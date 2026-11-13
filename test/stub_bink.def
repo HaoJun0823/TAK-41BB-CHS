@@ -1,0 +1,17 @@
+; stub_bink.def —— 把桩函数以原版的修饰名导出，供代理 DLL 的 forwarder 解析
+;
+; 左=导出名（与 KINGDOMS.icd 导入的名字一致，stdcall 修饰）
+; 右=实现符号（extern "C" 下无修饰）
+LIBRARY binkw32_orig
+
+EXPORTS
+    _BinkOpenMiles@4=Stub_BinkOpenMiles
+    _BinkClose@4=Stub_BinkClose
+    _BinkPause@8=Stub_BinkPause
+    _BinkNextFrame@4=Stub_BinkNextFrame
+    _BinkCopyToBuffer@28=Stub_BinkCopyToBuffer
+    _BinkDoFrame@4=Stub_BinkDoFrame
+    _BinkWait@4=Stub_BinkWait
+    _BinkOpen@8=Stub_BinkOpen
+    _BinkGoto@12=Stub_BinkGoto
+    _BinkSetSoundSystem@8=Stub_BinkSetSoundSystem

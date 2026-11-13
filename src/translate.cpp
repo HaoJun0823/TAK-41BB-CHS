@@ -95,6 +95,10 @@ const char* __stdcall DetourReverse(const char* s) {
 
 // 取主模块实际加载基址 + PE 里的 ImageBase：两者相减得到重定位偏移。
 // 直接用 GetModuleHandle(NULL) 当 0x400000 会在 ASLR 打开时算错。
+//
+// ★ 必须校验结果落在模块自己的 SizeOfImage 内。宿主进程若不是 41BB
+// （冒烟测试、或者版本不对），0x144020 这种偏移会指到未映射内存上，
+// 后续读签名就是访问冲突 —— 表现为"启动即闪退"，最难查的那种。
 void* RvaToVa(uintptr_t rva) {
     HMODULE mod = GetModuleHandleW(nullptr);
     if (!mod) return nullptr;
@@ -104,8 +108,23 @@ void* RvaToVa(uintptr_t rva) {
     IMAGE_NT_HEADERS* nt =
         reinterpret_cast<IMAGE_NT_HEADERS*>(base + dos->e_lfanew);
     if (nt->Signature != IMAGE_NT_SIGNATURE) return nullptr;
-    uintptr_t image_base = nt->OptionalHeader.ImageBase;
-    return base + (rva - image_base);
+
+    const uintptr_t image_base = nt->OptionalHeader.ImageBase;
+    if (rva < image_base) {
+        CHS_LOGE("RvaToVa: RVA 0x%lX 小于 ImageBase 0x%lX",
+                 static_cast<unsigned long>(rva),
+                 static_cast<unsigned long>(image_base));
+        return nullptr;
+    }
+    const uintptr_t offset = rva - image_base;
+    const uintptr_t size = nt->OptionalHeader.SizeOfImage;
+    if (offset >= size) {
+        CHS_LOGE("RvaToVa: 偏移 0x%lX 超出模块映像大小 0x%lX —— 这不是 41BB",
+                 static_cast<unsigned long>(offset),
+                 static_cast<unsigned long>(size));
+        return nullptr;
+    }
+    return base + offset;
 }
 
 }  // namespace

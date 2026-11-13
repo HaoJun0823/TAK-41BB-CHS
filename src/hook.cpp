@@ -28,6 +28,33 @@ bool InlineHook::Install(void* target, void* detour,
         return false;
     }
 
+    // 第 0 步：先确认这块地址真的能读。
+    // RVA 是按 41BB 的地址表算出来的，换一个宿主进程（或版本不符）就可能
+    // 落在未映射页上 —— 直接读签名会访问冲突，整个游戏当场崩掉。
+    // 宁可在这里失败，也不要让玩家看到"启动就闪退"。
+    MEMORY_BASIC_INFORMATION mbi;
+    if (!VirtualQuery(target, &mbi, sizeof(mbi))) {
+        CHS_LOGE("hook: VirtualQuery(%p) 失败 err=%lu", target, GetLastError());
+        return false;
+    }
+    if (mbi.State != MEM_COMMIT) {
+        CHS_LOGE("hook: 目标 %p 未提交（state=%lu），放弃", target, mbi.State);
+        return false;
+    }
+    const DWORD kReadable = PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ |
+                            PAGE_EXECUTE_READWRITE | PAGE_WRITECOPY |
+                            PAGE_EXECUTE_WRITECOPY;
+    if (!(mbi.Protect & kReadable) || (mbi.Protect & PAGE_GUARD)) {
+        CHS_LOGE("hook: 目标 %p 不可读（protect=0x%lX），放弃", target, mbi.Protect);
+        return false;
+    }
+    // 签名与要搬的字节不能跨出这个已提交区域
+    const BYTE* region_end = static_cast<const BYTE*>(mbi.BaseAddress) + mbi.RegionSize;
+    if (static_cast<const BYTE*>(target) + copy_len > region_end) {
+        CHS_LOGE("hook: 目标 %p 跨越区域边界，放弃", target);
+        return false;
+    }
+
     unsigned char* p = static_cast<unsigned char*>(target);
 
     // 第一步永远是校验签名。版本不对时宁可什么都不做，也不要往一个
