@@ -39,6 +39,33 @@ PROXIES = {
 }
 DEFAULT_PROXY = "version"
 
+# 同一 VFS 路径在多个 HPI 里各有副本时，按游戏加载顺序取最后生效的那份。
+# 引擎用 *.hpi 通配枚举、按文件名升序装载，后装覆盖先装；这里按同一顺序
+# 给权重，数字大的优先。只用于「各版本改写后正文一致」的情况，
+# 正文不同的直接跳过（见 same_bodies）。
+LOOSE_PRIORITY = {
+    "boneyards": 10, "boneyards2": 11,
+    "data": 20, "english": 21,
+    "ipdata": 30, "ipenglish": 31, "ipmissions": 32, "ipsections": 33,
+    "jersey": 34, "maps": 35, "meta": 36, "missions": 37, "sections": 38,
+    "terrain": 39, "v2rocket": 50, "v3rocket": 60,
+}
+
+
+def _body(b):
+    """比较版本用：统一行尾、去掉首尾空白。"""
+    return b.replace(b"\r\n", b"\n").replace(b"\r", b"\n").strip()
+
+
+def same_bodies(items):
+    """多版本产物的正文是否完全一致（只差行尾/大小写路径就不算差异）。"""
+    blobs = set()
+    for _, full, _ in items:
+        with open(full, "rb") as f:
+            blobs.add(_body(f.read()))
+    return len(blobs) == 1
+
+
 
 def check_game(game):
     """确认这是一个 41BB 游戏目录，返回 (ok, 说明)。"""
@@ -66,7 +93,7 @@ def walk_files(root):
     return out
 
 
-def plan_install(game, assets, dll, proxy):
+def plan_install(game, assets, dll, proxy, loose=False):
     """返回 (actions, warnings)。
 
     action = (说明, 源, 目标 [, 模式])
@@ -151,6 +178,54 @@ def plan_install(game, assets, dll, proxy):
             print("   （网页译文 %d 个文件）" % n)
     else:
         warns.append("没找到 %s，跳过网页译文层" % web)
+
+    # 5) 松散资源：把改写后的 .txt/.ota/.gui/.fbi/.tdf 按 VFS 路径放到游戏根目录。
+    #
+    #    为什么必须这么做：任务文本（.txt）和 GUI 控件文字（.gui 里的
+    #    `2 0 <len> <text>`）是引擎直接取来画的，**不经过 sub_544020**，
+    #    所以 chs.dict 翻不到它们 —— 实机日志里 miss 列表从不出现
+    #    "Bilinear Filtering" 就是证据。只有换资源本体才生效。
+    #
+    #    引擎查松散文件优先于 HPI（Startup.tdf 只存在于磁盘、不在任何 HPI，
+    #    游戏照样能读），因此按 VFS 路径铺到游戏根目录即可，原版 HPI 不动。
+    #
+    #    版本歧义：同一 VFS 路径在 data / V2Rocket / V3Rocket / IPData 等包里
+    #    各有一份，4.1BB 补丁改过 .fbi 的 frozen/airship/healtime 这些平衡字段。
+    #    选错版本 = 回退数值 = 联机不同步，所以只有「改写后正文完全一致」的
+    #    多版本才敢落盘，其余一律跳过并计数。
+    if loose:
+        up = os.path.join(assets, "update")
+        if os.path.isdir(up):
+            cand = {}
+            for hpdir in sorted(os.listdir(up)):
+                hp = os.path.join(up, hpdir)
+                if not os.path.isdir(hp) or hpdir.startswith("_"):
+                    continue      # _root 里的 Startup.tdf 会顶掉根目录原版文件
+                for full, rel in walk_files(hp):
+                    cand.setdefault(rel.replace("\\", "/").lower(), []).append(
+                        (hpdir, full, rel))
+            taken = amb = 0
+            skipped_exist = []
+            for key, items in sorted(cand.items()):
+                items.sort(key=lambda x: -LOOSE_PRIORITY.get(x[0].lower(), 0))
+                hpdir, full, rel = items[0]
+                if len(items) > 1 and not same_bodies(items):
+                    amb += 1
+                    continue
+                dest = os.path.join(game, rel)
+                if os.path.exists(dest):
+                    skipped_exist.append(rel)
+                    continue
+                acts.append(("资源 %s ← %s" % (key, hpdir), full, dest))
+                taken += 1
+            print("   （松散资源 %d 个文件；版本歧义跳过 %d；根目录已有同名 %d）"
+                  % (taken, amb, len(skipped_exist)))
+            for rel in skipped_exist[:5]:
+                warns.append("跳过（根目录已有同名文件）：%s" % rel)
+        else:
+            warns.append("没找到 %s，跳过松散资源部署" % up)
+    elif loose is False:
+        pass
 
     acts.append(("写入安装标记（供撤回识别）", None,
                  os.path.join(game, MARKER), "write"))
@@ -259,6 +334,9 @@ def main():
                     help="代理 DLL 路径（默认 build_dll/<proxy>）")
     ap.add_argument("--apply", action="store_true", help="真正执行（默认只预演）")
     ap.add_argument("--uninstall", action="store_true", help="撤回")
+    ap.add_argument("--loose", action="store_true",
+                    help="额外把改写后的 .txt/.ota/.gui/.fbi/.tdf 按 VFS 路径"
+                         "铺到游戏根目录（任务与 GUI 文字只此一途生效）")
     a = ap.parse_args()
 
     dll = a.dll or os.path.join("build_dll", PROXIES[a.proxy])
@@ -278,7 +356,8 @@ def main():
         print("撤回计划：")
         do_uninstall(acts, a.apply)
     else:
-        acts, warns = plan_install(game, os.path.abspath(a.assets), dll, a.proxy)
+        acts, warns = plan_install(game, os.path.abspath(a.assets), dll, a.proxy,
+                                   loose=a.loose)
         if acts is None:
             for w in warns:
                 print("[中止] " + w)
