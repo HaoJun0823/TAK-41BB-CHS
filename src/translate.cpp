@@ -46,6 +46,8 @@ volatile LONG g_calls = 0;
 volatile LONG g_hits = 0;
 volatile LONG g_rev_calls = 0;
 volatile LONG g_rev_hits = 0;
+// 引擎词条表命中、但给的是英文，最后由字典补译的条数
+volatile LONG g_engine_en = 0;
 
 // 前 N 条未命中的原文，出问题时能直接看出"哪一类串没被翻译"
 const int kMissLog = 40;
@@ -148,12 +150,27 @@ const char* TranslateHint(const char* s) {
 
 const char* __stdcall DetourForward(const char* s) {
     InterlockedIncrement(&g_calls);
-    // 先让引擎自己走一遍：原生 Chinese 语言槽若已命中，结果比我们的字典
-    // 更权威（它有 TDF 上下文），不要抢。
+    // 先让引擎自己走一遍。引擎的词条表在启动时按注册表
+    // HKCU\Software\Cavedog Entertainment\Kingdoms\InterfaceOptions\Language
+    // 建好（本机实测是 ENGLISH），所以 TDF 里凡是带 English 字段的 [词条]
+    // 它都会命中，并把英文原样返回。
     const char* r = g_orig_fwd ? g_orig_fwd(s) : s;
     if (!s || !*s) return r;
     if (r != s) {
-        InterlockedIncrement(&g_hits);   // 引擎命中
+        // 引擎命中 ≠ 已经是译文。Language=ENGLISH 时它回的是英文，直接
+        // return 就把字典挡在门外 —— 表现就是"键 ≠ 英文原文"的那批词条
+        // 永远露英文：
+        //   BYHost a Game       -> "Host a Game"      (boneyards.tdf)
+        //   book of darien.tdf  -> "Book of Darien"   (guiexpansion.tdf)
+        //   the iron plague.tdf -> "The Iron Plague"  (guiexpansion.tdf)
+        // 这几条的 Chinese 槽写在 TDF 覆盖层里也没用：引擎只认当前
+        // Language 槽。所以命中后必须再查一次字典，让它兜住这类英文回包。
+        const char* zh = g_dict.ToChinese(r);
+        if (zh) {
+            InterlockedIncrement(&g_engine_en);
+            return zh;
+        }
+        InterlockedIncrement(&g_hits);   // 引擎命中且字典没有：保持原样
         return r;
     }
     // 结构化提示串（#Enter#Ok#Esc#Cancel）先按语法拆开，只译标签位。
@@ -272,8 +289,8 @@ bool TranslateInit(HMODULE self, const wchar_t* dict_path) {
 void TranslateShutdown() {
     g_hook_rev.Remove();
     g_hook_fwd.Remove();
-    CHS_LOG("translate: 统计 正向 %ld 调 / %ld 命中（含引擎），反向 %ld 调 / %ld 命中",
-            g_calls, g_hits, g_rev_calls, g_rev_hits);
+    CHS_LOG("translate: 统计 正向 %ld 调 / %ld 命中（含引擎，其中 %ld 条是引擎回英文后由字典补译），反向 %ld 调 / %ld 命中",
+            g_calls, g_hits, g_engine_en, g_rev_calls, g_rev_hits);
     if (g_miss_cs_ready) {
         DeleteCriticalSection(&g_miss_cs);
         g_miss_cs_ready = false;

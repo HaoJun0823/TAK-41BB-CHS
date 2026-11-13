@@ -385,6 +385,45 @@ Hook `sub_544110`：
 - 做法 B（无副作用）：hook `RegQueryValueExA` 或 `sub_4FA740`，
   仅当 `lpValueName == "Language"` 时返回 `"Chinese"`。
 
+#### 6.4.1 实测：`Language` 仍是 `ENGLISH`，引擎会"抢答"英文
+
+2026-11-14 在实机上读了注册表：
+
+```
+HKCU\Software\Cavedog Entertainment\Kingdoms\InterfaceOptions\Language = ENGLISH
+```
+
+后果比想象中直接。`sub_543CD0("translate", "*.tdf", Language)` 建表时，
+`sub_543E40` 对每个 `[词条]` 调 `sub_5432C0(dst, Language, ...)`
+（内部 `sub_543110` → `_strcmpi`）**只取当前语言那一槽**：
+
+- 槽是 `Chinese` 时取译文；本机是 `ENGLISH`，取到的是 `English = ...;` 的原文；
+- 槽里没这个字段（例如 `[Host a Game]` 这种「键就是英文」的词条）→ 返回空，
+  该条不入表，`sub_544020` 原样返回入参，**交给我们的字典**。
+
+于是出现一个反直觉的分裂：**凡是 TDF 里显式写了 `English = ...;` 的词条，
+引擎命中后返回英文指针，DLL 原来那句 `if (r != s) return r;` 直接放行，
+字典根本没机会看**。露在界面上就是这几条：
+
+| 键（`#...#` 里引用的名字） | 所在文件 | 引擎回包 | 应有的译文 |
+|---|---|---|---|
+| `BYHost a Game` | `translate/boneyards.tdf` | `Host a Game` | 创建游戏 |
+| `book of darien.tdf` | `translate/guiexpansion.tdf` | `Book of Darien` | 达里恩之书 |
+| `the iron plague.tdf` | `translate/guiexpansion.tdf` | `The Iron Plague` | 铁之灾祸 |
+
+**修法（已落地，`src/translate.cpp`）**：引擎命中不等于"已经是译文"。
+`DetourForward` 在 `r != s` 分支里再查一次 `g_dict.ToChinese(r)`，
+命中就返回字典里的译文，未命中才原样放行。好处：
+
+- 不动注册表，卸载补丁不会留下 `Language=Chinese` 这种后遗症
+  （真改成 Chinese 而补丁被删，游戏会把 `#BYHost a Game#` 这类键名直接画出来）；
+- 不依赖 `Chinese` 槽，覆盖层 TDF 只写中文槽、原包英文照旧也能全绿；
+- 字典仍是最终权威 —— 936 条 `polish.json` 定稿优先于引擎回包。
+
+`translate/` 覆盖层是**合流**不是替换：原 `HPI` 里的 `[词条]`（含 `English`）
+先入表，我们只补 `Chinese` 槽，所以上面那条 `English` 分支永远存在，
+必须由 DLL 兜住。
+
 ### 6.5 字库层（最难，需分阶段验证）
 
 - `FontHandler` vtable 在 `0x5F57C8`，字体绘制相关方法集中在

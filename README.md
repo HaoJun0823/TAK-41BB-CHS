@@ -35,6 +35,8 @@
 `Chinese` 语言槽管 UI 词条 + hook `sub_544020`/`sub_544110` 管其余文本 +
 hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文件零改动**
 （连 `binkw32.dll` 都不再改名，卸载就是删掉一个我们放进去的系统 DLL 同名文件）。
+实机注册表里 `Language` 是 `ENGLISH`，引擎会对带 `English` 字段的词条"抢答"英文，
+所以 DLL 在引擎命中后仍查一次字典 —— 详见 [`docs/02` §6.4.1](docs/02-IDA与DLL方案.md)。
 
 ## 目录
 
