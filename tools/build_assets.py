@@ -273,7 +273,7 @@ def write_translate_tables(sources, out_dir, slot):
             lines.append("}")
             lines.append("")
         with open(dest, "wb") as f:
-            f.write(encode_game("\n".join(lines)))
+            f.write(encode_game("\r\n".join(lines)))
         n += 1
     return n
 
@@ -371,6 +371,12 @@ def write_update(sources, out_dir, slot, game_dir):
             skipped += 1
             continue
         new = apply_patches(text, patches, slot)
+        # 换行符必须跟随源文件。apply_patches 按 '\n' 切分，原文是 CRLF 时
+        # 每行末尾的 '\r' 会被保留，但**新插入**的行没有 '\r' —— 于是同一份
+        # TDF 里混进裸 LF。实测引擎的 TDF 解析器对此不至于立刻报错，但
+        # 这类字节级偏差没有任何好处，且会让 diff/回归比对全部失真。
+        if "\r\n" in text:
+            new = new.replace("\r\n", "\n").replace("\n", "\r\n")
         dest = os.path.join(out_dir, "update", safe_rel(src))
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         with open(dest, "wb") as f:

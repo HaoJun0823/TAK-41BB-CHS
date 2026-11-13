@@ -29,6 +29,8 @@ import os
 import shutil
 import sys
 
+import check_tdf
+
 MARKER = ".tak_chs_installed"    # 装过的痕迹，撤回时据此判断哪些是我们放的
 MANIFEST = ".tak_chs_files.txt"  # 我们写进去的文件清单（相对路径），撤回时按单删
 
@@ -361,6 +363,29 @@ def do_uninstall(acts, apply_):
             os.remove(src)
 
 
+def tdf_gate(update_dir):
+    """部署前把 update/ 下所有 .tdf 过一遍语法，返回硬伤文件数。
+
+    只拦硬伤（缺 ']' / '{' / '=' / ';'、多余 '}'）；原版自带的分号怪写法
+    （法语那句 "Vous êtes éliminé; désirez-vous..."）只报警告，不拦。
+    """
+    if not os.path.isdir(update_dir):
+        return 0
+    bad = 0
+    for path in check_tdf.walk(update_dir):
+        fails, warns = check_tdf.check_file(path)
+        for w in warns:
+            print("   [TDF 警告] %s：%s" % (os.path.basename(path), w))
+        if fails:
+            bad += 1
+            print("   [TDF 硬伤] %s" % path)
+            for msg in fails:
+                print("       %s" % msg)
+    if not bad:
+        print("   TDF 预检通过")
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description="部署/撤回 TAK 汉化")
     ap.add_argument("--game", required=True, help="游戏根目录（含 KINGDOMS.icd）")
@@ -393,6 +418,14 @@ def main():
         print("撤回计划：")
         do_uninstall(acts, a.apply)
     else:
+        # 部署前过一遍 TDF 语法：引擎解析失败时只会弹一句
+        #   "Data field - '=' not found - name = 'root'"
+        # 不带行号，事后要从 500 多份文件里倒查，代价比在这里挡一下高得多。
+        if a.res:
+            bad = tdf_gate(os.path.join(os.path.abspath(a.assets), "update"))
+            if bad:
+                print("[中止] %d 份 TDF 有语法硬伤，先修资产再部署" % bad)
+                return 1
         acts, warns = plan_install(game, os.path.abspath(a.assets), dll, a.proxy,
                                    res=a.res)
         if acts is None:

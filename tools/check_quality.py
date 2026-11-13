@@ -265,6 +265,26 @@ def check_long_sentence(rows, limit=68):
     return bad
 
 
+# TDF 的解析器（sub_5429D0）找的是「当前位置之后第一个 '='」，再「第一个 ';'」。
+# 值里出现 '=' 无害（第一个 '=' 已经被当成分隔符吃掉了），但出现 ';' 会被当成
+# 字段结束 —— 后半句直接变成下一行的“键”，引擎只会在别处甩一句
+# "Data field - '=' not found - name = 'root'"。换行同理，会原样留在文本里。
+TDF_BAD = set(";\r\n")
+
+
+def check_tdf_chars(rows):
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        if not any(t["src"].lower().endswith(".tdf") for t in r.get("targets", [])):
+            continue
+        hit = sorted(set(r["zh"]) & TDF_BAD)
+        if hit:
+            bad.append((r, "TDF结构字符:%s" % "".join(repr(c)[1:-1] for c in hit)))
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description="译文质量体检")
     ap.add_argument("--text", default=os.path.join(ROOT, "text"))
@@ -294,7 +314,8 @@ def main():
                   ("繁体", check_traditional(rows)),
                   ("旧译名", check_variants(rows, variants, canon_zh)),
                   ("重复括注", check_duplicate_paren(rows)),
-                  ("超长句", check_long_sentence(rows))]
+                  ("超长句", check_long_sentence(rows)),
+                  ("TDF字符", check_tdf_chars(rows))]
         n = sum(len(x[1]) for x in groups)
         total_bad += n
         print("%-22s done=%-5d 问题=%d  %s" % (

@@ -60,6 +60,7 @@ hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文
 | `tools/clean_text.py` | 清洗 GBK 编不了的字符，避免单字节嵌进双字节流造成错位 |
 | `tools/build_assets.py` | 明文 → 资产补丁（CI 模式无需游戏本体） |
 | `tools/verify_assets.py` | 产物独立复核：不复用构建器逻辑，专门防"两边同错" |
+| `tools/check_tdf.py` | 按引擎真实实现（`sub_5429D0`）校验 TDF 语法，部署前拦截解析错误 |
 | `inventory/` | `hpi_files.csv`（9037 条资源记录）、`non_translatable.csv`（921 项需人工制作资产） |
 | `TAUtil/` | git submodule，MIT，© 2014 ArmouredFish —— 提供 HPI/GAF/TDF 结构定义 |
 | `LICENSES/` | 第三方许可全文 |
@@ -78,6 +79,8 @@ python tools/verify_assets.py --out build_out --strict
 
 # 本地端到端：额外产出 build_out/update/**（改写后的完整资源）
 python tools/build_assets.py --text text --out build_out --slot Chinese --game "$GAME"
+python tools/check_tdf.py build_out/update          # TDF 语法预检（deploy --res 会自动跑）
+python tools/deploy.py --game "$GAME" --apply --res
 ```
 
 CI 三段式（`.github/workflows/build-assets.yml`）：

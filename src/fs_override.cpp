@@ -13,8 +13,19 @@
 // 所以松散文件永远被跳过；把文件铺到游戏根目录不会有任何效果。
 //
 // 这里直接接管该函数：请求的虚拟路径若在 <游戏目录>\chs_res\ 下有译文副本，
-// 就用那份文件构造引擎自己的文件对象返回（与原生 fopen 分支同一套对象，
-// 后续 vtable 读取/关闭完全兼容）；没有则原样转发。
+// 就用那份文件构造引擎自己的文件对象返回；没有则原样转发。
+//
+// ★ 为什么必须用引擎自己的 fopen，不能用本 DLL 的 _wfopen
+//   引擎是静态链接 CRT 的（导入表里没有 msvcrt），文件对象的 GetSize 实现是
+//       _filelength(*(FILE**)obj + 16 处的 _file)     // sub_5399D0
+//   也就是拿 **文件描述符号** 去查它自己那张 fd 表。我们用 DLL 的 CRT 打开
+//   文件得到的 fd 属于另一张表，引擎按那个号取长度只会拿到别的文件的大小
+//   （或 -1）。上层接着按这个长度 fread，缓冲区尾部是未初始化的堆内存，
+//   TDF 解析器读到垃圾字节就报
+//       Parse error in .TDF File! Data field - '=' not found - name = 'root'
+//   —— 实测 translate\abnar's terrace.tdf 必现。
+//   因此这里改为直接调用游戏模块里那个静态 fopen（fopen → _fsopen(...,_SH_DENYNO)），
+//   FILE* 与 fd 全程留在引擎自己的 CRT 里，size/read/close 三者才自洽。
 #include <windows.h>
 
 #include <stdio.h>
@@ -22,6 +33,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "fs_override.h"
 #include "hook.h"
@@ -36,10 +48,13 @@ typedef void* (__stdcall* FnOpen)(const char* name, const char* mode, int noLoos
 typedef void* (__cdecl* FnAlloc)(size_t size);
 // 文件对象构造：__thiscall(this=ecx, FILE*, name)，用 __fastcall 转发即可。
 typedef void* (__fastcall* FnFileCtor)(void* self, void* edx, FILE* f, const char* name);
+// 引擎静态 CRT 的 fopen（cdecl）。必须由引擎打开文件，FILE*/fd 才能配套。
+typedef FILE* (__cdecl* FnFopen)(const char* path, const char* mode);
 
 const uintptr_t kRvaOpen = 0x13AFF0;      // sub_53AFF0
 const uintptr_t kRvaAlloc = 0x0EB9E0;     // sub_4EB9E0
 const uintptr_t kRvaFileCtor = 0x1398F0;  // sub_5398F0
+const uintptr_t kRvaFopen = 0x1D43FD;     // sub_5D43FD  fopen(path, mode)
 
 // 引擎自己的文件系统锁。原生分支在分配文件对象时是持锁的，
 // 我们的接管路径绕过原函数，必须补上同样的互斥，否则两个线程同时
@@ -56,9 +71,15 @@ const unsigned char kSigOpen[] = {0x55, 0x8B, 0xEC, 0x81, 0xEC, 0x0C,
                                   0x01, 0x00, 0x00, 0x53, 0x56, 0x57};
 const int kCopyOpen = 9;  // 前三条指令恰好 9 字节，落在指令边界
 
+// fopen 的开头：push 0x40(_SH_DENYNO); push [esp+0Ch]; push [esp+0Ch]
+// 只用于识别版本，不在这里下 hook —— 我们是在自己的接管逻辑里直接调它。
+const unsigned char kSigFopen[] = {0x6A, 0x40, 0xFF, 0x74, 0x24, 0x0C,
+                                   0xFF, 0x74, 0x24, 0x0C};
+
 FnOpen g_orig_open = nullptr;
 FnAlloc g_alloc = nullptr;
 FnFileCtor g_ctor = nullptr;
+FnFopen g_fopen = nullptr;
 InlineHook g_hook;
 
 std::unordered_map<std::string, std::wstring> g_res;
@@ -127,8 +148,26 @@ std::string NormalizeKeyW(const std::wstring& w) {
     return out;
 }
 
-void ScanDir(const std::wstring& dir, const std::wstring& rel) {
-    WIN32_FIND_DATAW fd;
+// 引擎的 fopen 是 ANSI 版：宽字符路径要按系统代码页转回去。
+// 转不动（路径里有当前 CP 表示不了的字）就放弃接管，让游戏读原版资源 ——
+// 宁可少一块译文，也不能把半截路径丢给 fopen。
+bool ToAnsi(const std::wstring& w, std::string* out) {
+    if (w.empty()) {
+        return false;
+    }
+    int n = WideCharToMultiByte(CP_ACP, 0, w.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (n <= 1) {
+        return false;
+    }
+    std::vector<char> buf(static_cast<size_t>(n));
+    if (!WideCharToMultiByte(CP_ACP, 0, w.c_str(), -1, buf.data(), n, nullptr, nullptr)) {
+        return false;
+    }
+    out->assign(buf.data());  // 以 NUL 结尾，assign 到这里正好是 n-1 个字符
+    return true;
+}
+
+void ScanDir(const std::wstring& dir, const std::wstring& rel) {    WIN32_FIND_DATAW fd;
     std::wstring pattern = dir + L"\\*";
     HANDLE h = FindFirstFileW(pattern.c_str(), &fd);
     if (h == INVALID_HANDLE_VALUE) {
@@ -196,10 +235,18 @@ void* TryServe(const char* name, const char* mode) {
     if (it == g_res.end()) {
         return nullptr;
     }
-    FILE* f = _wfopen(it->second.c_str(), L"rb");
+    // ★ 必须由引擎自己的 CRT 打开：fd 只在自己那张表里有意义（见文件头说明）。
+    std::string ansi;
+    if (!g_fopen || !ToAnsi(it->second, &ansi)) {
+        if (InterlockedIncrement(&g_errs) <= kLogLimit) {
+            CHS_LOGE("res: 路径转 ANSI 失败，跳过 %ls", it->second.c_str());
+        }
+        return nullptr;
+    }
+    FILE* f = g_fopen(ansi.c_str(), "rb");
     if (!f) {
         if (InterlockedIncrement(&g_errs) <= kLogLimit) {
-            CHS_LOGE("res: 打不开 %ls", it->second.c_str());
+            CHS_LOGE("res: 打不开 %s", ansi.c_str());
         }
         return nullptr;
     }
@@ -215,11 +262,23 @@ void* TryServe(const char* name, const char* mode) {
     }
     FsUnlock(locked);
     if (!obj) {
-        fclose(f);
+        // 不能在这里调本 DLL 的 fclose：这个 FILE* 属于引擎的 CRT，拿它去
+        // 查我们自己的 fd 表只会关错文件。构造失败意味着引擎的分配器已经
+        // 见底，泄漏一个句柄是这里最不坏的选择。
+        CHS_LOGE("res: 文件对象分配失败，句柄泄漏 %s", name);
         return nullptr;
     }
     if (InterlockedIncrement(&g_hits) <= kLogLimit) {
-        CHS_LOG("res: 接管 %s", name);
+        // 顺手把引擎自己算出来的大小打进日志：它走 _filelength(f->_file)，
+        // 一旦和真实字节数对不上，就说明 FILE*/fd 又跨了 CRT —— 这次事故
+        // 的唯一现场证据就是这一行。
+        int size = -1;
+        void** vt = *reinterpret_cast<void***>(obj);
+        if (vt && vt[4]) {
+            typedef int(__fastcall* FnSize)(void* self, void* edx);
+            size = reinterpret_cast<FnSize>(vt[4])(obj, nullptr);
+        }
+        CHS_LOG("res: 接管 %s（引擎大小 %d 字节）", name, size);
     }
     return obj;
 }
@@ -264,12 +323,27 @@ bool FsOverrideInit(HMODULE self) {
     void* p_open = VaFromRva(kRvaOpen);
     void* p_alloc = VaFromRva(kRvaAlloc);
     void* p_ctor = VaFromRva(kRvaFileCtor);
-    if (!p_open || !p_alloc || !p_ctor) {
-        CHS_LOGE("res: 地址解析失败 open=%p alloc=%p ctor=%p", p_open, p_alloc, p_ctor);
+    void* p_fopen = VaFromRva(kRvaFopen);
+    if (!p_open || !p_alloc || !p_ctor || !p_fopen) {
+        CHS_LOGE("res: 地址解析失败 open=%p alloc=%p ctor=%p fopen=%p",
+                 p_open, p_alloc, p_ctor, p_fopen);
         return false;
     }
     g_alloc = reinterpret_cast<FnAlloc>(p_alloc);
     g_ctor = reinterpret_cast<FnFileCtor>(p_ctor);
+
+    // 版本校验：引擎 fopen 的开头必须是那三条 push。对不上说明不是 41BB，
+    // 这时构造出来的对象迟早会读到错的大小 —— 直接不接管，比崩溃强。
+    const unsigned char* fb = static_cast<const unsigned char*>(p_fopen);
+    for (size_t i = 0; i < sizeof(kSigFopen); ++i) {
+        if (fb[i] != kSigFopen[i]) {
+            CHS_LOGE("res: 引擎 fopen 签名不匹配 @%p 偏移 %d：期望 %02X 实际 %02X",
+                     p_fopen, static_cast<int>(i), kSigFopen[i], fb[i]);
+            g_ready = false;
+            return false;
+        }
+    }
+    g_fopen = reinterpret_cast<FnFopen>(p_fopen);
 
     g_fs_target = reinterpret_cast<LONG*>(VaFromRva(kRvaFsTarget));
     g_fs_owner = reinterpret_cast<LONG*>(VaFromRva(kRvaFsOwner));
