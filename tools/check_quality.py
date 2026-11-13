@@ -29,6 +29,8 @@ ALLOW = {
     "tcp", "udp", "ip", "http", "https", "html", "gaf", "hpi", "tdf", "fbi",
     "windows", "microsoft", "cavedog", "bink", "mp3", "ogg", "wav", "bik",
     "dx", "d3d", "ddraw", "cpu", "ram", "mb", "kb", "gb", "fps", "ui",
+    "directplay", "directdraw", "direct3d", "glide", "voodoo", "opengl",
+    "dll", "url", "ini", "exe", "hpi", "mmx", "huffman", "zlib", "libpng",
 }
 
 
@@ -128,6 +130,35 @@ def check_ui_latin(rows):
     return bad
 
 
+def check_punct(rows):
+    """中文紧贴半角标点、或仍用 `...` 的，统一算排版问题。"""
+    bad = []
+    half = re.compile(r"[\u4e00-\u9fff][,;:!?]|[,;:!?][\u4e00-\u9fff]")
+    dots = re.compile(r"[\u4e00-\u9fff]\.{3}|\u2026{3,}")
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        if half.search(r["zh"]):
+            bad.append((r, "半角标点"))
+        elif dots.search(r["zh"]):
+            bad.append((r, "...未换成……"))
+    return bad
+
+
+def check_traditional(rows):
+    """混进繁体字（简中项目不该出现）。只列无歧义的繁体字形，避免误报。"""
+    trad = set("個這來時間戰單敵軍資開關於與為擊龍聖術價錢裡麼樣過還進運員屍體傷護"
+               "圍選擇確認設隊營廠礦場頭糧訓練僱騎劍牆門橋樑網絡連線導彈藥獸鳥魚馬車輪砲槍")
+    bad = []
+    for r in rows:
+        if r["status"] != "done" or not r["zh"]:
+            continue
+        hit = sorted({c for c in r["zh"] if c in trad})
+        if hit:
+            bad.append((r, "繁体:" + "".join(hit)))
+    return bad
+
+
 def check_numbers(rows):
     """原文的整数应在译文中出现（允许年份/版本被译成中文数字的情况先不查）。"""
     bad = []
@@ -168,7 +199,9 @@ def main():
                   ("英文残留", check_foreign_words(rows)),
                   ("半译", check_half_translated(rows)),
                   ("界面英文", check_ui_latin(rows)),
-                  ("数字丢失", check_numbers(rows))]
+                  ("数字丢失", check_numbers(rows)),
+                  ("排版", check_punct(rows)),
+                  ("繁体", check_traditional(rows))]
         n = sum(len(x[1]) for x in groups)
         total_bad += n
         print("%-22s done=%-5d 问题=%d  %s" % (

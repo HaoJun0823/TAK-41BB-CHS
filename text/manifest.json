@@ -3,6 +3,11 @@
   "source_sha256": "dfcb2673ddeb019c",
   "groups": [
     {
+      "file": "00_manual.jsonl",
+      "entries": 181,
+      "desc": "人工补的运行时词条：GUI 内置标签、主程序提示、地图规格（只进 chs.dict，不写资源）"
+    },
+    {
       "file": "01_ui_tdf.jsonl",
       "entries": 1476,
       "desc": "引擎自带多语言词条表 translate/*.tdf（P0，最该先译）"

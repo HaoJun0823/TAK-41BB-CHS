@@ -93,7 +93,10 @@ def main():
                               % (fn, i, rid, seen_ids[rid]))
             else:
                 seen_ids[rid] = fn
-            if not isinstance(r.get("targets"), list) or not r["targets"]:
+            # 00 组是人工补的运行时词条（GUI 内置标签、主程序提示、地图规格），
+            # 只进 chs.dict、不写资源，因此允许 targets 为空；其余组必须有写回位置。
+            manual_only = fn.startswith("00_manual")
+            if not isinstance(r.get("targets"), list) or (not r["targets"] and not manual_only):
                 errors.append("%s:%d targets 为空" % (fn, i))
             else:
                 for t in r["targets"]:
