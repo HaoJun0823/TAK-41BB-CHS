@@ -7,6 +7,9 @@ tools/*.py      text eol=lf
 docs/*.md       text eol=lf
 *.md            text eol=lf
 .gitignore      text eol=lf
+LICENSE         text eol=lf
+packaging/*.txt text eol=lf
+payload/*.json  text eol=lf
 
 # workflow 同样锁 LF：CRLF 虽能被 GitHub 解析，但会让本地 diff 噪声变大
 .github/**     text eol=lf
