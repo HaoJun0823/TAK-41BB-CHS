@@ -25,6 +25,7 @@
 | 内嵌网页（05）落地 | **已实现**（117 页 1097 段，重定向到 `chs_web/`），入口被停运的 Boneyards 挡住，见 [`docs/08-内嵌网页译文层.md`](docs/08-内嵌网页译文层.md) |
 | 任务/GUI/单位资源落地（02/03/04） | **已实现**（1056 个文件 → `chs_res/`，hook 引擎的文件打开函数），见 [`docs/09-资源读取接管.md`](docs/09-资源读取接管.md) |
 | CI 编译 DLL（`build-dll.yml`，带导出表门禁） | **完成** |
+| 发布（`release.yml`：编译 → 组装 zip → Release） | **完成**，推 `v*` 标签或手动触发 |
 | 联机实测 | 待做 |
 
 **IDA 核心结论**：引擎自带完整本地化链路 —— `WinMain` 读 `Language` →
@@ -64,6 +65,10 @@ hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文
 | `tools/build_assets.py` | 明文 → 资产补丁（CI 模式无需游戏本体） |
 | `tools/verify_assets.py` | 产物独立复核：不复用构建器逻辑，专门防"两边同错" |
 | `tools/check_tdf.py` | 按引擎真实实现（`sub_5429D0`）校验 TDF 语法，部署前拦截解析错误 |
+| `tools/pack_payload.py` | 把 `build_out/update` 的资源打成 `payload/chs_res.zip` 入库（CI 无原版游戏，资源层必须预打） |
+| `tools/verify_payload.py` | 独立复核 payload：解压重算摘要，并检查资源层是否已落后于 `text/` |
+| `tools/stage_release.py` | 组装 `stage/`：DLL + 字典 + 资源层 + 说明 + 许可 |
+| `tools/make_release_zip.py` | 打发布 zip：路径干净、固定时间戳、拦源码混入 |
 | `inventory/` | `hpi_files.csv`（9037 条资源记录）、`non_translatable.csv`（921 项需人工制作资产） |
 | `TAUtil/` | git submodule，MIT，© 2014 ArmouredFish —— 提供 HPI/GAF/TDF 结构定义 |
 | `LICENSES/` | 第三方许可全文 |
@@ -98,10 +103,37 @@ CI 三段式（`.github/workflows/build-assets.yml`）：
 `verify-text`（结构 + 质量 + GBK 安全）→ `package`（打包 + 独立复核）→
 `recheck`（在干净容器里只下载 artifact 再验一次）。
 
+## 发布
+
+推一个 `v*` 标签就会走 `.github/workflows/release.yml`：编译 DLL → 校验导出表 →
+校验 payload → 生成字典 → 组装 → 打 zip → 建 Release。也可以在 Actions 页面手动
+触发并填版本号。
+
+```bash
+# 改了译文、要发新版本时的完整顺序
+python tools/build_assets.py --text text --out build_out --slot Chinese --game "$GAME"
+python tools/pack_payload.py                 # 重打资源层，否则 payload 落后于 text/
+python tools/verify_payload.py --strict      # 发布前必须绿
+
+git tag v0.1.1 && git push origin v0.1.1
+```
+
+发布包只含玩家要用的东西（`version.dll`、`chs.dict`、`chs_res/`、说明、许可），
+不含源码。本地想先看包长什么样：
+
+```bash
+python tools/stage_release.py --version v0.1.0 --dll build_dll/version.dll
+python tools/make_release_zip.py --stage stage --out dist/TAK-41BB-CHS-v0.1.0.zip
+```
+
+`payload/chs_res.zip` 是入库的构建产物（1130 个文件，0.7 MB）。之所以不现场生成：
+`chs_res` 由原版 HPI 改写而来，runner 上没有原版游戏（版权 + 体积）。
+
 范式参考：`G:/Projects/MajestyIIExtend`（明文词典 + fontgen + ASI）、
 `G:/Projects/ArmyMenCHS`（不改 exe、`update/` 覆盖层、`LICENSES/`、CI 三段式）。
 
 ## 许可
 
-项目自身许可待定稿；随包的第三方组件许可见 `LICENSES/`。
-游戏素材版权归原权利人所有，本仓库不主张任何权利。
+代码与工具：MIT，见 `LICENSE`。
+译文、游戏内容权属与第三方组件：见 `packaging/NOTICE.txt`，第三方许可全文在 `LICENSES/`。
+游戏素材版权归原权利人所有，本仓库不主张任何权利，也不分发游戏原始数据。

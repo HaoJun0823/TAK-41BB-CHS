@@ -1,0 +1,242 @@
+name: release
+
+# ============================================================================
+# 发布：编译 DLL → 组装完整补丁 → 打成 zip → 建 Release
+# ----------------------------------------------------------------------------
+# 触发方式两种，产物完全一样：
+#   * 推一个 v* 标签（正式发布）
+#        git tag v0.1.0 && git push origin v0.1.0
+#   * 手动 Run workflow，填版本号（试发布 / 重发）
+#
+# 为什么 release 的 zip 里没有源码
+#   这是给玩家的成品：version.dll + chs.dict + chs_res\ + 说明 + 许可。
+#   解压到游戏目录即用，不需要 Python，也不需要懂构建。
+#   源码在仓库里，要改的人自己 clone。
+#
+# 为什么资源层是「预打的 payload」而不是现场生成
+#   chs_res 由原版 HPI 里的文件改写而来，runner 上没有原版游戏（版权 + 体积）。
+#   所以本机先跑 tools/pack_payload.py 打成 payload/chs_res.zip 入库，
+#   CI 只解压。若 text/ 改了却没重打 payload，verify_payload --strict 会失败，
+#   避免发出「资源层旧、字典新」的混合体。
+#
+# 为什么 zip 用 Python 打而不是 zip 命令
+#   见 tools/make_release_zip.py 开头：`.` 开头的路径在不同发行版上不一致，
+#   玩家会遇到「解压后没有 version.dll」。
+# ============================================================================
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号（形如 v0.1.0）'
+        required: true
+        default: 'v0.1.0'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: 'utf-8'
+
+jobs:
+  # ── 1. 编译代理 DLL ──────────────────────────────────────────────────
+  build-dll:
+    name: 编译 version.dll
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v7.0.1
+        with:
+          submodules: false   # TAUtil 只是格式参考，编译用不到
+
+      - name: 编译并校验导出表
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw '找不到 vswhere.exe' }
+
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild `
+                                -find 'MSBuild\**\Bin\MSBuild.exe' |
+                     Select-Object -First 1
+          if (-not $msbuild) { throw '找不到 MSBuild.exe' }
+          Write-Host "MSBuild: $msbuild"
+
+          # 工程写 v141_xp（为保住 XP 兼容）。runner 装了 v141 就用，没装退 v143。
+          $v141 = & $vswhere -latest -products * `
+                             -find 'VC\Tools\MSVC\14.16*\bin\Hostx86\x86\cl.exe' |
+                  Select-Object -First 1
+
+          # 工程钉死 WindowsTargetPlatformVersion=10.0.26100.0，runner 的 SDK
+          # 随镜像滚动，钉死那版未必在 —— 取已装的最新版，避免 "SDK not found"。
+          $sdk = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Include" `
+                               -Directory -ErrorAction SilentlyContinue |
+                 Where-Object { $_.Name -match '^10\.\d+\.\d+\.\d+$' } |
+                 Sort-Object { [version]$_.Name } -Descending |
+                 Select-Object -First 1 -ExpandProperty Name
+
+          function Build([string]$toolset) {
+            $msbArgs = @('TAK_41BB_CHS.vcxproj', '/nologo', '/m', '/v:minimal',
+                         '/p:Configuration=Release', '/p:Platform=Win32',
+                         '/p:OutDir=dist\',
+                         ('/p:PlatformToolset=' + $toolset))
+            if ($sdk) { $msbArgs += ('/p:WindowsTargetPlatformVersion=' + $sdk) }
+            & $msbuild @msbArgs
+            return $LASTEXITCODE
+          }
+
+          $toolset = if ($v141) { 'v141_xp' } else { 'v143' }
+          Write-Host "工具集 $toolset；SDK $(if ($sdk) { $sdk } else { '默认' })"
+
+          $code = Build $toolset
+          if ($code -ne 0 -and $toolset -ne 'v143') {
+            Write-Warning "$toolset 不可用，回退 v143（产物不再保证 XP 兼容）"
+            Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+            $code = Build 'v143'
+          }
+          if ($code -ne 0) { throw 'DLL 编译失败' }
+          if (-not (Test-Path 'dist\version.dll')) { throw '没有产出 dist\version.dll' }
+          Get-Item 'dist\version.dll' | Format-List Name, Length
+
+          # 导出表门禁：version.def 写了几条，产物就必须有几条。
+          # 少一条 = 玩家机器上「找不到入口点」，而那发生在他们那边、没有日志。
+          $dumpbin = & $vswhere -latest -products * `
+                                -find 'VC\Tools\MSVC\**\bin\Hostx64\x86\dumpbin.exe' |
+                     Select-Object -First 1
+          if (-not $dumpbin) { throw '找不到 dumpbin.exe' }
+
+          $text = (& $dumpbin /exports dist\version.dll) -join "`n"
+          $need = Select-String -Path version.def -Pattern '^\s*(\S+)=chs_px_' |
+                  ForEach-Object { $_.Matches[0].Groups[1].Value }
+          if (-not $need) { throw 'version.def 里没解析到跳板条目' }
+          Write-Host "应为 $($need.Count) 个导出"
+
+          $miss = $need | Where-Object { $text -notmatch [regex]::Escape($_) }
+          if ($miss) { throw "缺少导出: $($miss -join ', ')" }
+          if ($text -match 'forwarded to') {
+            throw '导出表里有转发记录：.def 写成 x=模块.y 会递归回自己'
+          }
+          Write-Host '导出表校验通过'
+
+      - name: 上传 DLL
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: tak-dll
+          path: dist/version.dll
+          if-no-files-found: error
+          retention-days: 7
+
+  # ── 2. 组装发布包 ────────────────────────────────────────────────────
+  package:
+    name: 组装发布包
+    needs: build-dll
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v7.0.1
+
+      - name: 配置 Python
+        uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: 校验版本号
+        run: |
+          set -euo pipefail
+          case "$VERSION" in
+            v[0-9]*) ;;
+            *) echo "::error::版本号必须形如 v0.1.0，当前是「$VERSION」"; exit 1 ;;
+          esac
+          echo "发布版本：$VERSION"
+
+      # 资源层必须与当前 text/ 同源，否则发出去的是「资源层旧、字典新」。
+      - name: 校验资源层 payload
+        run: python tools/verify_payload.py --strict
+
+      # --strict：01-06 组还有一条未译就失败。不跑 --game（runner 上没有游戏），
+      # 只产 chs.dict / patches.json 这类纯文本资产。
+      - name: 生成运行时字典
+        run: python tools/build_assets.py --text text --out build_out --slot Chinese --strict
+
+      - name: 取回 DLL
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: tak-dll
+          path: dll
+
+      - name: 组装 stage
+        run: >-
+          python tools/stage_release.py
+          --version "$VERSION"
+          --dll dll/version.dll
+          --build-out build_out
+
+      - name: 打 zip
+        run: >-
+          python tools/make_release_zip.py
+          --stage stage
+          --out "dist/TAK-41BB-CHS-${VERSION}.zip"
+
+      - name: 抽查包结构
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import glob, zipfile
+          p = glob.glob('dist/*.zip')[0]
+          with zipfile.ZipFile(p) as z:
+              names = z.namelist()
+          print('%s：%d 条' % (p, len(names)))
+          for n in names[:6]:
+              print('   ', n)
+          print('顶层：', '、'.join(sorted({n.split('/')[0] for n in names})))
+          PY
+
+      - name: 上传发布包
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-zip
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  # ── 3. 建 Release ────────────────────────────────────────────────────
+  publish:
+    name: 发布 Release
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 取回发布包
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: release-zip
+          path: dist
+
+      - name: 列出待发布文件
+        run: ls -lh dist/
+
+      - name: 创建 Release
+        uses: softprops/action-gh-release@v3.0.4
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: TAK 41BB 汉化 ${{ env.VERSION }}
+          files: dist/*.zip
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          body: |
+            解压到游戏安装目录（`KINGDOMS.icd` 所在文件夹）即可，无需其他步骤。
+            详见包内 `INSTALL.txt`。
+
+            - 不改动游戏自带文件，删除 `version.dll`、`chs.dict`、`chs_res\` 即完全卸载
+            - 需自备 4.1BB 正版游戏；本包不含游戏原始数据
+            - 联机双方需安装同一版本

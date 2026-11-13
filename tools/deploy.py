@@ -98,6 +98,45 @@ def walk_files(root):
     return out
 
 
+def iter_res_files(assets):
+    """挑出该进 chs_res/ 的资源文件，返回 [(rel, full, hpdir, ambiguous)]。
+
+    rel 是游戏 VFS 里的相对路径，也是 chs_res/ 下的落盘位置。
+
+    版本歧义：同一 VFS 路径在 data / V2Rocket / V3Rocket / IPData 等包里各
+    有一份，4.1BB 补丁改过 .fbi 的 frozen/airship/healtime 这些平衡字段。
+    引擎按包加载顺序取后者（V3Rocket 最后加载），所以这里同样按
+    LOOSE_PRIORITY 取最高的那一份；ambiguous 标记「多版本正文不一致、
+    已按优先级择一」，供调用方提示。
+
+    只取 update/：build_out/translate/ 是另一套「精简语言槽」产物，与
+    update/ 里的改写后原文件同路径，混进来会互相覆盖。
+
+    部署（deploy.py）与打包（pack_payload.py）都走这一个函数，
+    免得两边各写一套挑选规则、最后发布的包和实测通过的包不是同一份。
+    """
+    base = os.path.join(assets, "update")
+    if not os.path.isdir(base):
+        return []
+
+    cand = {}
+    for hpdir in sorted(os.listdir(base)):
+        hp = os.path.join(base, hpdir)
+        if not os.path.isdir(hp) or hpdir.startswith("_"):
+            continue      # _root 里的 Startup.tdf 会顶掉根目录原版文件
+        for full, rel in walk_files(hp):
+            key = rel.replace("\\", "/").lower()
+            cand.setdefault(key, []).append((hpdir, full, rel))
+
+    out = []
+    for key, items in sorted(cand.items()):
+        items.sort(key=lambda x: -LOOSE_PRIORITY.get(x[0].lower(), 0))
+        hpdir, full, rel = items[0]
+        amb = len(items) > 1 and not same_bodies(items)
+        out.append((rel.replace("\\", "/"), full, hpdir, amb))
+    return out
+
+
 def plan_install(game, assets, dll, proxy, res=False):
     """返回 (actions, warnings)。
 
@@ -194,30 +233,13 @@ def plan_install(game, assets, dll, proxy, res=False):
     #
     #    版本歧义：同一 VFS 路径在 data / V2Rocket / V3Rocket / IPData 等包里
     #    各有一份，4.1BB 补丁改过 .fbi 的 frozen/airship/healtime 这些平衡字段。
-    #    选错版本 = 回退数值 = 联机不同步，所以只有「改写后正文完全一致」的
-    #    多版本才敢落盘，其余一律跳过并计数。
+    #    选错版本 = 回退数值 = 联机不同步，所以按包优先级择一并计数；
+    #    挑选规则统一放在 iter_res_files，打包（pack_payload）与部署共用一份。
     if res:
-        # 只取 update/：build_out/translate/ 是另一套「精简语言槽」产物，
-        # 与 update/ 里改写后的原文件同路径，混进来会互相覆盖。
-        cand = {}
-        base = os.path.join(assets, "update")
-        if os.path.isdir(base):
-            for hpdir in sorted(os.listdir(base)):
-                hp = os.path.join(base, hpdir)
-                if not os.path.isdir(hp) or hpdir.startswith("_"):
-                    continue      # _root 里的 Startup.tdf 会顶掉根目录原版文件
-                for full, rel in walk_files(hp):
-                    key = rel.replace("\\", "/").lower()
-                    cand.setdefault(key, []).append((hpdir, full, rel))
         taken = multi = stale = 0
         multi_src = {}
-        for key, items in sorted(cand.items()):
-            # 同一 VFS 路径在多个包里各有一份：引擎按包加载顺序取后者
-            # （4.1BB 的 V3Rocket 最后加载），所以我们同样取优先级最高的
-            # 版本，才能与游戏正在用的数值一致。取错 = 回退 4.0 平衡。
-            items.sort(key=lambda x: -LOOSE_PRIORITY.get(x[0].lower(), 0))
-            hpdir, full, rel = items[0]
-            if len(items) > 1 and not same_bodies(items):
+        for rel, full, hpdir, amb in iter_res_files(assets):
+            if amb:
                 multi += 1
                 multi_src[hpdir] = multi_src.get(hpdir, 0) + 1
             # 上一版铺在游戏根目录的松散文件：内容一致才删，避免误删原版
@@ -229,7 +251,7 @@ def plan_install(game, assets, dll, proxy, res=False):
                         stale += 1
                 except OSError:
                     pass
-            acts.append(("资源 %s ← %s" % (key, hpdir), full,
+            acts.append(("资源 %s ← %s" % (rel.lower(), hpdir), full,
                          os.path.join(game, "chs_res", rel)))
             taken += 1
         print("   （chs_res 资源 %d 个；多版本按优先级取 %d；根目录待清理 %d）"

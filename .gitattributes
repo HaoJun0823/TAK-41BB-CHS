@@ -31,6 +31,7 @@ inventory/*.csv text
 
 # 二进制 / 游戏素材（不应入库，保险起见声明）
 *.dll           binary
+*.zip           binary
 *.exe           binary
 *.icd           binary
 *.hpi           binary
