@@ -126,7 +126,10 @@ def plan_install(game, assets, dll, proxy):
             if not os.path.isdir(hp):
                 continue
             for full, rel in walk_files(hp):
-                key = rel.replace("\\", "/")
+                # 键必须大小写不敏感：V3Rocket 包里路径是 Translate/，其余包是
+                # translate/，Windows 下落盘是同一个目录。用原样大小写当键会让
+                # 同一个文件被记两遍（清单 56 行 vs 实际 37 个文件）。
+                key = rel.replace("\\", "/").lower()
                 if key in seen:
                     continue          # 同内容副本，跳过
                 seen[key] = full
