@@ -32,6 +32,9 @@ def main():
         data = json.load(f)
     overrides = data.get("overrides", {})
     id_overrides = data.get("id_overrides", {})
+    # 定点字符串替换：改的是「已经译好的句子里某个词」，比整句 override 省事，
+    # 也不会因为原句有一处不同就整条失效。顺序执行，先长后短。
+    substitutions = data.get("substitutions", [])
 
     changed = 0
     hit = set()
@@ -54,6 +57,16 @@ def main():
             elif en in overrides and r.get("status") != "skip":
                 new = overrides[en]
             if new is None:
+                new = r.get("zh") or ""
+                for pair in substitutions:
+                    if len(pair) == 2 and pair[0] in new:
+                        new = new.replace(pair[0], pair[1])
+                if new == (r.get("zh") or ""):
+                    continue
+                print("%-22s %-26r %r -> %r" % (group, en, r.get("zh") or "", new))
+                r["zh"] = new
+                changed += 1
+                dirty = True
                 continue
             old = r.get("zh") or ""
             if old != new:

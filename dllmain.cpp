@@ -17,6 +17,7 @@
 #include "src/proxy.h"
 #include "src/target.h"
 #include "src/translate.h"
+#include "src/web_override.h"
 
 namespace {
 
@@ -98,6 +99,12 @@ DWORD WINAPI InitThread(LPVOID param) {
         GetFileAttributesW(flag_path) != INVALID_FILE_ATTRIBUTES;
     chs::GdiProbeInit(force_cn);
 
+    // 内嵌网页（05 组）：把 atlas/ Boneyards/ GC/ 下的 .htm 读取改到 chs_web/。
+    // 装不上不影响游戏，只是那几百页仍是英文。
+    if (!chs::WebOverrideInit()) {
+        CHS_LOGE("web: 重定向未启用");
+    }
+
     // 中文字库层：把汉字做成运行时纹理帧，交给引擎自己的贴图管线绘制。
     chs::CjkFontInit();
 
@@ -143,6 +150,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved) {
             CHS_LOG("==== 进程退出 ====");
         }
         chs::GdiProbeReport();
+        chs::WebOverrideReport();
         chs::CjkFontShutdown();
         chs::LogShutdown();
         break;

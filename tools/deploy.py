@@ -138,6 +138,20 @@ def plan_install(game, assets, dll, proxy):
     else:
         warns.append("没找到 %s，跳过 TDF 覆盖层" % tr)
 
+    # 4) 内嵌网页译文：chs_web/<相对路径>，由 DLL 在 CreateFileA 上重定向。
+    #    原有 atlas/ Boneyards/ GC/ 一个字节不动。
+    web = os.path.join(assets, "web")
+    if os.path.isdir(web):
+        n = 0
+        for full, rel in walk_files(web):
+            acts.append(("网页译文 %s" % rel.replace("\\", "/"), full,
+                         os.path.join(game, "chs_web", rel)))
+            n += 1
+        if n:
+            print("   （网页译文 %d 个文件）" % n)
+    else:
+        warns.append("没找到 %s，跳过网页译文层" % web)
+
     acts.append(("写入安装标记（供撤回识别）", None,
                  os.path.join(game, MARKER), "write"))
     acts.append(("写入文件清单（撤回据此精确删除）", None,

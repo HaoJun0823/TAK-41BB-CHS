@@ -125,6 +125,7 @@
     <ClInclude Include="src\gdi_probe.h" />
     <ClInclude Include="src\target.h" />
     <ClInclude Include="src\proxy.h" />
+    <ClInclude Include="src\web_override.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -153,6 +154,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\proxy_version.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\web_override.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pch.cpp">

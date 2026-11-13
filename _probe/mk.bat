@@ -22,7 +22,7 @@ if not exist build_dll\obj mkdir build_dll\obj
 
 set SRC=dllmain.cpp src\log.cpp src\dict.cpp src\hook.cpp src\translate.cpp ^
    src\gdi_probe.cpp src\cjk_font.cpp src\cd_patch.cpp src\target.cpp ^
-   src\proxy_version.cpp
+   src\web_override.cpp src\proxy_version.cpp
 
 set CFLAGS=/nologo /LD /MT /O2 /source-charset:utf-8 /execution-charset:.936 /EHsc /W3 /DWIN32 /DNDEBUG /D_WINDOWS /D_USRDLL /Fobuild_dll\obj\
 
