@@ -1,0 +1,23 @@
+{
+  "_note": "专名锁定表：翻译脚本会把这里每一项塞进 system prompt。改完需清 build_out/cache 后重跑，或直接让我重译。候选来自 text/glossary.md，未经官方核对。",
+  "Aramon": "阿拉蒙",
+  "Taros": "塔罗斯",
+  "Veruna": "维鲁纳",
+  "Zhon": "佐恩",
+  "Creon": "克里昂",
+  "Darien": "达里恩",
+  "Darien Crusades": "达里恩远征",
+  "Iron Plague": "铁之灾祸",
+  "Boneyards": "Boneyards",
+  "Monarch": "君主",
+  "Mogrium": "魔能",
+  "Kirenna": "基蕾娜",
+  "Thirsha": "瑟莎",
+  "Elsin": "艾尔辛",
+  "Lokken": "洛肯",
+  "Lihr": "里尔",
+  "Solan Rixx": "索兰·里克斯",
+  "M'hari": "姆哈里",
+  "Caora": "卡奥拉",
+  "Kuvera": "库维拉"
+}
