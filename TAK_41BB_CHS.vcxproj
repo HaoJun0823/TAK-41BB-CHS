@@ -8,8 +8,10 @@
     装不进去的 DLL。
   * CharacterSet=MultiByte。全程按单字节/GBK 处理文本，用 Unicode 版
     宏会把字符串悄悄转成 wchar_t。
-  * /utf-8。源码里的中文注释与常量是 UTF-8；MSVC 默认按系统代码页
-    （936）解释源文件，不指定就会乱码。
+  * 字符集拆成两半：/source-charset:utf-8 /execution-charset:.936。
+    源码是 UTF-8（含中文注释），但**窄字符串常量必须是 GBK** —— 日志要
+    给记事本看，游戏也按单字节读。直接用 /utf-8 会把常量编成 UTF-8
+    字节，中文全变乱码，测试里 strcmp 也对不上。
   * /MT 静态 CRT。玩家机器不一定装了对应版本的 VC 运行库，
     动态链接会变成"双击没反应"。
   * TargetName=binkw32。顶替原版 binkw32.dll 做代理（见 binkw32.def），
@@ -77,7 +79,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/source-charset:utf-8 /execution-charset:.936 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -98,7 +100,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/source-charset:utf-8 /execution-charset:.936 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

@@ -177,15 +177,17 @@ bool Dict::Load(const wchar_t* path, int* out_count) {
 const char* Dict::ToChinese(const char* en) const {
     if (!loaded_ || !en || !*en) return nullptr;
 
+    // 精确表：区分大小写，与 sub_544020 内部的 strcmp 对齐
     unsigned i = Hash(en) & exact_mask_;
     for (unsigned probe = 0; probe <= exact_mask_; ++probe) {
         const Entry& e = exact_[i];
-        if (!e.key) return nullptr;
+        if (!e.key) break;                 // 空槽＝这条链走完了，转去查小写表
         if (e.key[0] == en[0] && strcmp(e.key, en) == 0) return e.val;
         i = (i + 1) & exact_mask_;
     }
 
-    // 精确未命中再走小写表：sub_4C7740 会把串先 _strlwr 再查
+    // 小写表：sub_4C7740 会先 _strlwr 再查，所以 "close ranks" 也要能命中
+    // "Close Ranks"。这里不能提前 return，否则大小写不同的键全部丢失。
     unsigned j = HashLower(en) & lower_mask_;
     for (unsigned probe = 0; probe <= lower_mask_; ++probe) {
         const Entry& e = lower_[j];

@@ -11,6 +11,16 @@ docs/*.md       text eol=lf
 # workflow 同样锁 LF：CRLF 虽能被 GitHub 解析，但会让本地 diff 噪声变大
 .github/**     text eol=lf
 
+# C++ 源码与 def：LF 便于 diff；MSVC 两种都能编
+src/*.cpp       text eol=lf
+src/*.h         text eol=lf
+*.def           text eol=lf
+*.cpp           text eol=lf
+*.h             text eol=lf
+
+# 批处理必须 CRLF，cmd.exe 对 LF 的 goto/label 解析有坑
+*.bat           text eol=crlf
+
 # 清单是给 Excel 打开的 utf-8-sig CSV，换行交给 Git 自动处理即可
 inventory/*.csv text
 

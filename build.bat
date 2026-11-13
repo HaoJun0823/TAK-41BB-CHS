@@ -65,10 +65,10 @@ if not exist build_dll mkdir build_dll
 if not exist build_dll\obj mkdir build_dll\obj
 
 if /i "%CFG%"=="debug" (
-    set CFLAGS=/nologo /LD /MTd /Od /Zi /utf-8 /EHsc /W3
+    set CFLAGS=/nologo /LD /MTd /Od /Zi /source-charset:utf-8 /execution-charset:.936 /EHsc /W3
     set LDFLAGS=/DEBUG
 ) else (
-    set CFLAGS=/nologo /LD /MT /O2 /utf-8 /EHsc /W3
+    set CFLAGS=/nologo /LD /MT /O2 /source-charset:utf-8 /execution-charset:.936 /EHsc /W3
     set LDFLAGS=
 )
 
