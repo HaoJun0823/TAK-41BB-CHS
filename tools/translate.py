@@ -23,6 +23,7 @@ import re
 import sys
 import threading
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -55,6 +56,37 @@ PRODUCT_REPLACE = (
     ("Total Annihilation:Kingdoms", "横扫千军：王国风云"),
     ("Total Annihilation", "横扫千军"),
 )
+
+# 游戏文本最终要写成 GBK 双字节。若译文里混进「GBK 编不了、cp1252 能编」的
+# 字符（• ™ © 之类），打包时会被写成单字节，把整串 GBK 序列撑错位：
+#   '杜马·戈残骸' 的 '·'(U+00B7) 一旦走 cp1252 就是 0xB7，
+#   输出 11 字节（奇数）→ 整张 npcs.tdf 解不开 → 游戏读不到任何词条。
+# GBK 本身覆盖了全部常用中文标点（— ‘’“” … 、。，！？《》均可用），
+# 所以只需给少数几个缺口配等价物，其余编不了的一律清掉。
+GBK_FALLBACK = {
+    "\u2022": "\u00b7",   # • → ·（A1A4，中文项目符号）
+    "\u00a0": " ",        # 不间断空格 → 普通空格
+    "\u2122": "",         # ™ GBK 无
+    "\u00a9": "",         # © GBK 无（上下文已写"版权所有"）
+    "\u00ae": "",         # ® GBK 无
+}
+
+
+def gbk_safe(s):
+    """把 GBK 编不了的字符换成可编码等价物，从源头掐掉打包期的字节错位。"""
+    out = []
+    for ch in s:
+        try:
+            ch.encode("gbk")
+        except UnicodeEncodeError:
+            rep = GBK_FALLBACK.get(ch)
+            if rep is None:
+                # 拉丁字母去变音后可能还能用；阿拉伯文等直接丢
+                rep = unicodedata.normalize("NFKD", ch).encode("ascii", "ignore").decode()
+            out.append(rep)
+        else:
+            out.append(ch)
+    return "".join(out)
 
 SYSTEM = """你是《横扫千军：王国风云》(Total Annihilation: Kingdoms) 的简体中文本地化译者。
 用户会给出一个 JSON 数组，每项含 en（英文原文）、ctx（使用场景）。
@@ -218,7 +250,7 @@ def normalize(zh, en):
             s = s[:-1].rstrip()
     for a, b in PRODUCT_REPLACE:
         s = s.replace(a, b)
-    return s
+    return gbk_safe(s)
 
 
 def problems(en, zh, phs):
@@ -236,7 +268,8 @@ def problems(en, zh, phs):
         p.append("too_long")
     if zh.strip() == en.strip() and len(en.split()) > 1 and not KEY_RE.match(en.strip()):
         p.append("identical")
-    if en.startswith("•") and not zh.startswith("•"):
+    # 项目符号：GBK 没有 •(U+2022)，归一化后会变成 ·(U+00B7)，两者都算保留
+    if en.startswith("•") and zh[:1] not in ("•", "·"):
         p.append("bullet_lost")
     return p
 

@@ -50,12 +50,32 @@ def is_dev_note(src):
     return bool(DEV_NOTE_RE.search(src.split("::")[-1]))
 
 
-def encode_game(s):
-    """按「原单字节优先、中文走 GBK」编码：保住弯引号/德语变音，中文入 GBK。
+CJK_RE = re.compile(r"[\u3000-\u303f\u4e00-\u9fff\uff01-\uff60]")
 
-    游戏资源是 8 位单字节文本（cp1252）。中文无法用单字节表示，必须写 GBK
-    双字节。逐字符处理可避免整串 encode('gbk') 把原有 8 位字符撑成双字节。
+
+def encode_game(s):
+    """含中文的串整体走 GBK，纯西文串保持 cp1252 单字节。
+
+    ★ 为什么不能逐字符「先试 cp1252」
+    cp1252 能表示不少 Unicode 字符，一旦逐字符判定，这些字符会被写成**单字节**，
+    嵌进 GBK 双字节流里就会把整串错位。真实踩坑：
+        '杜马·戈残骸' 里的 '·' 是 U+00B7，cp1252 对应 0xB7，
+        结果输出 b6c5 c2ed | b7 | b8ea b2d0 baba —— 11 字节（奇数），
+        GBK 解码在 0xb7 处截断，整张 npcs.tdf 打不开，游戏读不到任何词条。
+    GBK 是 ASCII 兼容的，所以中文串整体 encode('gbk') 不会伤到其中的英文部分。
+
+    纯西文串仍走 cp1252，保住原文件里的弯引号（0x92）、变音字母等既有字节。
     """
+    if CJK_RE.search(s):
+        out = bytearray()
+        for ch in s:
+            try:
+                out += ch.encode("gbk")
+            except UnicodeEncodeError:
+                # GBK 无此字符（•™© 之类）：退回单字节会破坏双字节流，
+                # 只能替换成 '?' 并留下痕迹 —— 正常数据已在 clean_text 阶段清掉了。
+                out += b"?"
+        return bytes(out)
     out = bytearray()
     for ch in s:
         try:
@@ -101,7 +121,7 @@ def collect(by_group):
                         icd.append({
                             "file_offset": "0x" + m.group(1),
                             "en": r["en"], "zh": r["zh"],
-                            "gbk_hex": r["zh"].encode("gbk", "replace").hex(),
+                            "gbk_hex": encode_game(r["zh"]).hex(),
                         })
                 continue
             for t in r["targets"]:
@@ -285,7 +305,7 @@ def apply_patches(text, patches, slot):
         elif p["kind"] == "gui_line":
             mm = re.match(r"^(\s*2\s+0\s+)(\d+)(\s+)(.+?)(\s*)$", old)
             if mm:
-                n = len(p["zh"].encode("gbk", "replace"))
+                n = len(encode_game(p["zh"]))
                 lines[idx] = "%s%d%s%s%s" % (mm.group(1), n, mm.group(3),
                                              p["zh"], mm.group(5))
     return "\n".join(lines)
@@ -342,18 +362,23 @@ def main():
                    "entries": icd}, f, ensure_ascii=False, indent=2)
         f.write("\n")
 
-    result = {"schema": 1, "slot": a.slot,
+    result = {"schema": 1, "slot": a.slot, "encoding": "gbk-mixed",
               "total": stats["total"], "translated": stats["translated"],
               "untranslated": stats["untranslated"],
               "dev_note": stats["dev_note"],
               "sources": len(sources), "tdf_tables": n_tdf,
               "dict_entries": n_dict, "dict_reverse": n_rev,
               "dict_conflicts": n_conf,
-              "icd_entries": len(icd), "update_files": 0, "skipped": 0}
+              "icd_entries": len(icd),
+              # skipped = 文本层按规则跳过的条数；update_skipped 才是改写阶段
+              # 没落地的文件数。两者语义不同，不能共用一个字段（曾互相覆盖，
+              # 导致 CI 模式下 skipped 恒为 0，本地模式又被 117 顶掉）。
+              "skipped": stats["skipped"],
+              "update_files": 0, "update_skipped": 0}
     if a.game:
         w, s = write_update(sources, a.out, a.slot, a.game)
         result["update_files"] = w
-        result["skipped"] = s
+        result["update_skipped"] = s
     with open(os.path.join(a.out, "summary.json"), "w", encoding="utf-8",
               newline="\n") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
@@ -370,7 +395,7 @@ def main():
           % (len(sources), n_tdf, n_dict, n_rev, n_conf, len(icd)))
     if a.game:
         print("      build_out/update/ 改写文件 %d 份，跳过 %d 份（HTML 或未找到）"
-              % (result["update_files"], result["skipped"]))
+              % (result["update_files"], result["update_skipped"]))
     if a.strict and stats["untranslated"]:
         print("STRICT: 仍有 %d 条未译，构建失败" % stats["untranslated"])
         return 1
