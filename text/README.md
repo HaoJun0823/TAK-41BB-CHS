@@ -124,7 +124,7 @@ python tools/build_assets.py --text text --out build_out --slot Chinese --strict
 |---|---|---|---|
 | A 档 | `fixes.json` | 界面串定稿 + **353 条按英文名生效的覆盖**（单位名、地图名）+ 39 条定点替换 | `python tools/apply_term_fixes.py --text text --write` |
 | B 档 | `lore_terms.json` | 专名与术语锁定（`canonical` 英文→定稿，`variants` 旧译名→定稿） | `python tools/apply_lore_terms.py --text text --write` |
-| C 档 | `polish.json` | **837 条整段定稿**（剧情、百科、帮助长句、288 条任务简报、界面提示），`id -> 定稿 zh` | `python tools/apply_polish.py --text text --write` |
+| C 档 | `polish.json` | **936 条整段定稿**（剧情、百科、帮助长句、387 条任务简报、界面提示），`id -> 定稿 zh` | `python tools/apply_polish.py --text text --write` |
 | 排版 | —（就地改写） | 列表符号、半/全角标点、`"…"`→`「…」`、引号两侧空格、`您`→`你` | `python tools/normalize_punct.py --text text --write` |
 
 **顺序固定为 B → A → C → 排版**：先统一专名，再套短词定稿，接着用整段定稿覆盖，

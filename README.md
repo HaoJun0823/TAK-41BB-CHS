@@ -50,8 +50,9 @@ hook 字形绘制补 GBK 中文 + `version.dll` 代理注入，**磁盘游戏文
 | [`docs/07-游戏文件与文本覆盖清单.md`](docs/07-游戏文件与文本覆盖清单.md) | **档案级覆盖清单**：16 个 HPI / 1858 个文本文件逐个对账，三口径覆盖率、落地状态、没覆盖的 472 个文件到底是什么 |
 | [`docs/08-内嵌网页译文层.md`](docs/08-内嵌网页译文层.md) | **05 组落地**：按原始字节区间改写 HTML、GBK + gb2312、`CreateFileA` 重定向到 `chs_web/`、为什么实机点不开这些页 |
 | [`docs/09-资源读取接管.md`](docs/09-资源读取接管.md) | **02/03/04 组落地**：松散文件为何无效（`Override File Search Path`）、hook `sub_53AFF0`、构造引擎文件对象、`chs_res/` 与多版本取舍 |
-| `tools/hpi_v2.py` | HPI v2 纯 Python 读取器：`list` / `extract` / `survey` / `inventory` / `verify` |
+| `tools/hpi_v2.py` | HPI v2 纯 Python 读取器：`list` / `extract` / `survey` / `inventory` / `verify`；同时支持 SQSH 压缩块与**裸字节条目**（block_size=0，少数任务简报/地图信息这样存） |
 | `tools/extract_strings.py` | 从干净 41BB 抽取全部待译英文，生成 `text/*.jsonl` |
+| `tools/extract_missing.py` | 补抽裸字节条目（missions/IPMissions 的 26 份任务简报、23 份地图信息），只追加不重建 |
 | `tools/verify_strings.py` | 独立校验：格式、唯一性、占位符、编码指纹、与基线一致 |
 | `tools/translate.py` | 用 LLM API 批量回填 `zh`/`status`：跨组去重、占位符强校验、断点续传、失败降级 |
 | `tools/check_quality.py` | 机器体检：专名锁定、英文残留、数字丢失、搭配硬伤、人称统一、单位名词缀一致（`--strict` 供 CI 门禁） |

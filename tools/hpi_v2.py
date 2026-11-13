@@ -262,10 +262,11 @@ class HpiV2(object):
         b = self.name_blob
         positions = self._name_positions()
         pos_offsets = [p[0] for p in positions]
+        pos_offsets_set = set(pos_offsets)
         found = {}
         for o in range(0, len(idx) - 24 + 1, 4):
             no, do, dsz, bsz, _u1, _u2 = struct.unpack_from("<6I", idx, o)
-            if no >= len(b) or dsz == 0 or bsz <= SQSH_HEAD:
+            if no >= len(b) or dsz == 0 or (bsz != 0 and bsz <= SQSH_HEAD):
                 continue
             z = b.find(b"\0", no)
             if z < 0:
@@ -274,10 +275,17 @@ class HpiV2(object):
             if "." not in nm:
                 continue
             info = self._chunk_info(do) if self.header_size <= do < self.dir_start else None
-            if not info:
-                continue
-            comp, enc, csz, real_dsz, _ck = info
-            if real_dsz != dsz or SQSH_HEAD + csz != bsz:
+            if info:
+                comp, enc, csz, real_dsz, _ck = info
+                if real_dsz != dsz or SQSH_HEAD + csz != bsz:
+                    continue
+            elif (bsz == 0 and no in pos_offsets_set
+                  and self.header_size <= do and do + dsz <= self.dir_start):
+                # 少数文件以裸字节存盘（无 SQSH 头，block_size 记 0）。
+                # 旧版解析器要求 SQSH 头，把这些条目整条丢掉了 ——
+                # 例如 missions.hpi 的 takmission02_mt.txt。
+                comp, enc = 0, 0
+            else:
                 continue
             key = (no, do)
             if key in found:
@@ -294,6 +302,9 @@ class HpiV2(object):
 
     def read_file(self, rec):
         """按记录读出一个文件的完整内容。"""
+        if rec.block_size == 0 and self._chunk_info(rec.data_offset) is None:
+            # 裸字节条目：内容直接躺在 data 区
+            return self.data[rec.data_offset:rec.data_offset + rec.decompressed_size]
         payload, _ = self._read_chunk(rec.data_offset)
         return payload
 
